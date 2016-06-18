@@ -1,5 +1,5 @@
 -----------------------------------------------------------------
-Please to click the icon "EDIT" to view this file.
+Please download this file and view it by gedit.
 -----------------------------------------------------------------
 
 [root@localhost android-6.0.1_r46]# cat /etc/redhat-release 
