@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------------------
-Please to click the icon "EDIT" to view this file.
+Please download this file and view it by gedit.
 ------------------------------------------------------------------------------------------
 [root@localhost my-gem5]# pwd
 /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/my-gem5/
