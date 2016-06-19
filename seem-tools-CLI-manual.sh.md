@@ -140,8 +140,7 @@ ip link set up dev tap_a_1
 brctl addbr br_a_1
 brctl addif br_a_1 tap_a_1
 ip link set up dev br_a_1
-ifconfig br_a_1 up
-# ip addr add 10.1.1.1/24 dev br_a_1
+ip addr add 10.1.1.1/24 dev br_a_1
 # ip route add 10.1.1.0/24 dev br_a_1
 #-----------
 tunctl -t tap_a_2
@@ -149,8 +148,7 @@ ip link set up dev tap_a_2
 brctl addbr br_a_2
 brctl addif br_a_2 tap_a_2
 ip link set up dev br_a_2
-ifconfig br_a_2 up
-# ip addr add 10.1.1.2/24 dev br_a_2
+ip addr add 10.1.1.2/24 dev br_a_2
 # ip route add 10.1.1.0/24 dev br_a_2
 #-----------
 
