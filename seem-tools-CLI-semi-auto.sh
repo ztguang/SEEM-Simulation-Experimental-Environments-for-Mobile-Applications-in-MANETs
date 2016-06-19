@@ -291,13 +291,13 @@ b=$3
 
 if [ $# -eq 3 ]; then
 
-	if [ $[a+b] -gt 254 ] || [ $2 -lt 0 ] || [ $3 -lt 0 ] || !([ $1 == "start" ]||[ $1 == "destroy" ]); then
+	if [ $[a+b] -gt 254 ] || [ $2 -lt 0 ] || [ $3 -lt 0 ] || !([ $1 == "create" ]||[ $1 == "destroy" ]); then
 		usage
 		exit
 	fi
 
 	case $1 in
-		start)
+		create)
 			if [ $2 -gt 0 ]; then create_docker; fi
 			if [ $3 -gt 0 ]; then create_android; fi
 			if [ $[a+b] -gt 0 ]; then
