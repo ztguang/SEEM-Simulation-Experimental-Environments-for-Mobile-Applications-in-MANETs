@@ -18,7 +18,6 @@
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
 
-//
 // This is an illustration of how one could use virtualization techniques to
 // allow running applications on virtual machines talking over simulated
 // networks.
@@ -59,16 +58,7 @@
 //                   |             |
 //                 ((*))         ((*))
 //
-//                       Wifi LAN
-//
-//                        ((*))
-//                          |
-//                     +--------+
-//                     |  wifi  |
-//                     +--------+
-//                     | access |
-//                     |  point |
-//                     +--------+
+//                       Wifi MANET
 //
 // cp manet-2015.cc /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/scratch/
 // ./waf --run scratch/manet-2015 --vis
@@ -263,7 +253,7 @@ int main (int argc, char *argv[])
   //tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_2"));
   //tapBridge.Install (nodes.Get (1), devices.Get (1));
   //Add New Lines via sed
-  //sed -i '266a \\n  tapBridge.Install (nodes.Get (1), devices.Get (1));\n  newline;' manet-seem-template.cc
+  //sed -i '256a \\n  tapBridge.Install (nodes.Get (1), devices.Get (1));\n  newline;' manet-seem-template.cc
 
 
 
