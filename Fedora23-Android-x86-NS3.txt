@@ -1,6 +1,3 @@
------------------------------------------------------------------
-Please to click the icon "EDIT" to view this file.
------------------------------------------------------------------
 
 [root@localhost android-6.0.1_r46]# cat /etc/redhat-release 
 Fedora release 23 (Twenty Three)
