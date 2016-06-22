@@ -265,14 +265,14 @@ usage(){
         Note: b + c <= 254
 
     For example:
-        seem-tools-CLI-semi-auto.sh create 10 0 centos-manet android-x86-6.0-rc1-
-        seem-tools-CLI-semi-auto.sh destroy 10 0 centos-manet android-x86-6.0-rc1-
+        seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86-6.0-rc1-
+        seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86-6.0-rc1-
 
-        seem-tools-CLI-semi-auto.sh create 0 10 centos-manet android-x86-6.0-rc1-
-        seem-tools-CLI-semi-auto.sh destroy 0 10 centos-manet android-x86-6.0-rc1-
+        seem-tools-CLI-semi-auto.sh create 0 5 centos-manet android-x86-6.0-rc1-
+        seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86-6.0-rc1-
 
-        seem-tools-CLI-semi-auto.sh create 10 5 centos-manet android-x86-6.0-rc1-
-        seem-tools-CLI-semi-auto.sh destroy 10 5 centos-manet android-x86-6.0-rc1-
+        seem-tools-CLI-semi-auto.sh create 20 5 centos-manet android-x86-6.0-rc1-
+        seem-tools-CLI-semi-auto.sh destroy 20 5 centos-manet android-x86-6.0-rc1-
 
 	EOU
 }
@@ -355,14 +355,14 @@ start_ns3(){
 # [root@localhost virtualbox-os]# ls
 # android-x86-6.0-rc1-1.vdi  android-x86-6.0-rc1-2.vdi  android-x86-6.0-rc1-3.vdi  android-x86-6.0-rc1-4.vdi
 # 
-# ./seem-tools-CLI-semi-auto.sh create 2 0 centos-manet android-x86-6.0-rc1-
-# ./seem-tools-CLI-semi-auto.sh destroy 2 0 centos-manet android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86-6.0-rc1-
 # 
-# ./seem-tools-CLI-semi-auto.sh create 0 2 centos-manet android-x86-6.0-rc1-
-# ./seem-tools-CLI-semi-auto.sh destroy 0 2 centos-manet android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh create 0 5 centos-manet android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86-6.0-rc1-
 # 
-# ./seem-tools-CLI-semi-auto.sh create 3 2 centos-manet android-x86-6.0-rc1-
-# ./seem-tools-CLI-semi-auto.sh destroy 3 2 centos-manet android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh create 20 5 centos-manet android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh destroy 20 5 centos-manet android-x86-6.0-rc1-
 #------------------------------------------------------------------------------------------
 
 # docker search image_name
