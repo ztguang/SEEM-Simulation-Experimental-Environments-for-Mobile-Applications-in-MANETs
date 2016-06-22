@@ -87,7 +87,8 @@ using namespace ns3;
 // Simulation parameters
 int nodeSpacing = 100; // meters
 int cols = 5;
-int numNodes = 25;
+//int numNodes = 25;
+int numNodes = 5;
 int sourceNode = 0;
 int destinationNode = 24;
 int packetRate = 20; // packet per second
@@ -255,6 +256,15 @@ int main (int argc, char *argv[])
 
   tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_2"));
   tapBridge.Install (nodes.Get (1), devices.Get (1));
+
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_3"));
+  tapBridge.Install (nodes.Get (2), devices.Get (2));
+
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_4"));
+  tapBridge.Install (nodes.Get (3), devices.Get (3));
+
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_5"));
+  tapBridge.Install (nodes.Get (4), devices.Get (4));
 
   //
   // Run the simulation for ten minutes to give the user time to play around
