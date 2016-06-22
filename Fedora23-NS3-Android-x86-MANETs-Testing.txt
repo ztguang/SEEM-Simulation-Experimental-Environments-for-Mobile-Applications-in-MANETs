@@ -1,0 +1,408 @@
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+need java-1.7.0-openjdk, not java-1.8.0-openjdk
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+java -version
+
+[root@localhost gem5-stable]# ls /usr/lib/jvm/
+java                                           java-openjdk       jre-1.8.0-openjdk-1.8.0.91-6.b14.fc23.x86_64
+java-1.8.0                                     jre                jre-openjdk
+java-1.8.0-openjdk                             jre-1.8.0
+java-1.8.0-openjdk-1.8.0.91-6.b14.fc23.x86_64  jre-1.8.0-openjdk
+[root@localhost gem5-stable]# 
+
+============================================
+Checking build tools versions...
+************************************************************
+You are attempting to build with the incorrect version
+of java.
+ 
+Your version is: openjdk version "1.8.0_91" OpenJDK Runtime Environment (build 1.8.0_91-b14) OpenJDK 64-Bit Server VM (build 25.91-b14, mixed mode).
+The required version is: "1.7.x"
+ 
+Please follow the machine setup instructions at
+    https://source.android.com/source/initializing.html
+************************************************************
+build/core/main.mk:171: *** stop
+
+#### make failed to build some targets (28 seconds) ####
+
+[root@localhost android-6.0.1_r46]# 
+[root@localhost android-6.0.1_r46]# export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.75-2.5.4.2.fc20.x86_64
+[root@localhost android-6.0.1_r46]# export PATH=$JAVA_HOME/bin:$PATH
+[root@localhost android-6.0.1_r46]# java -version
+java version "1.7.0_75"
+OpenJDK Runtime Environment (fedora-2.5.4.2.fc20-x86_64 u75-b13)
+OpenJDK 64-Bit Server VM (build 24.75-b04, mixed mode)
+[root@localhost android-6.0.1_r46]# 
+
+*********************************************************
+install java-1.7.0-openjdk
+*********************************************************
+http://koji.fedoraproject.org/koji/buildinfo?buildID=605625
+
+dnf search openjdk
+dnf install java-atk-wrapper
+
+[root@localhost Desktop]# ls java-1.7.0-openjdk-*
+java-1.7.0-openjdk-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-accessibility-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-debuginfo-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-demo-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-devel-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-headless-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-src-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+
+[root@localhost Desktop]# rpm -ivh --force --nodeps java-1.7.0-openjdk-*
+[root@localhost Desktop]# java -version
+[root@localhost Desktop]# ls /usr/lib/jvm/
+
+export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.75-2.5.4.2.fc20.x86_64
+export PATH=$JAVA_HOME/bin:$PATH
+*********************************************************
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+So far, OK
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Android-x86 —— compile the source code
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+http://www.android-x86.org/getsourcecode
+
+[root@localhost android-x86-6.0-rc1]# export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.75-2.5.4.2.fc20.x86_64
+[root@localhost android-x86-6.0-rc1]# export PATH=$JAVA_HOME/bin:$PATH
+
+[root@localhost android-x86-6.0-rc1]# . build/envsetup.sh
+[root@localhost android-x86-6.0-rc1]# lunch android_x86-userdebug
+
+[root@localhost android-x86-6.0-rc1]# m -j4 iso_img
+Total translation table size: 6900
+Total rockridge attributes bytes: 3312
+Total directory bytes: 12288
+Path table size(bytes): 88
+Done with: The File(s)                             Block(s)    170078
+Writing:   Ending Padblock                         Start Block 170122
+Done with: Ending Padblock                         Block(s)    150
+Max brk space used 22000
+170272 extents written (332 MB)
+/bin/bash: isohybrid: 未找到命令
+isohybrid not found.
+Install syslinux 4.0 or higher if you want to build a usb bootable iso.
+
+out/target/product/x86/android_x86.iso is built successfully.
+
+make: Leaving directory '/run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/android-x86/android-x86-6.0-rc1'
+#### make completed successfully (03:19:54 (hh:mm:ss)) ####
+
+------------------------------------------------------------
+out/target/product/x86/android_x86.iso
+
+[root@localhost android-x86-6.0-rc1]# ll -h out/target/product/x86/android_x86.iso
+-rw-r--r--. 1 root root 333M 6月  13 18:42 out/target/product/x86/android_x86.iso
+------------------------------------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+So far, OK
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+install Android-x86 (android_x86.iso) in VirtualBox
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+refer to http://www.rickylford.com/install-android-5-1-on-virtualbox/
+
+[root@localhost virtualbox-os]# pwd
+/run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+
+[root@localhost virtualbox-os]# ll -h
+-rw-------. 1 root root 5.1G 6月  14 21:24 android-x86-6.0-rc1-1.vdi
+[root@localhost virtualbox-os]# 
+
+Note: the name of Android-x86 Virtualhost created in VirtualBox is "android-x86-6.0-rc1-1", after, we will create new Android-x86 Virtualhosts by copying "android-x86-6.0-rc1-1".
+
+[root@localhost virtualbox-os]# cp android-x86-6.0-rc1-1.vdi android-x86-6.0-rc1-2.vdi
+
+[root@localhost virtualbox-os]# ll -h
+-rw-------. 1 root root 5.1G 6月  14 21:24 android-x86-6.0-rc1-1.vdi
+-rw-------. 1 root root 5.1G 6月  14 21:17 android-x86-6.0-rc1-2.vdi
+
+[root@localhost virtualbox-os]# VBoxManage internalcommands sethduuid android-x86-6.0-rc1-2.vdi
+
+--------------------------------------------------------------------------
+the up command must be executed, 
+otherwise, Error when importing VDI file in VirtualBox
+--------------------------------------------------------------------------
+
+Cannot register the hard disk '/run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os/Android-x86-6.0-rc1-1.vdi' {dbfc8e7b-4969-4836-86d9-418e60328b83} because a hard disk '/run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os/android-x86-6.0-rc1-2.vdi' with UUID {dbfc8e7b-4969-4836-86d9-418e60328b83} already exists.
+
+Solution：
+
+[root@localhost virtualbox-os]# VBoxManage internalcommands sethduuid android-x86-6.0-rc1-1.vdi
+UUID changed to: 865924c0-53b5-4aac-83b3-2402b33acdeb
+
+[root@localhost virtualbox-os]# VBoxManage internalcommands dumphdinfo android-x86-6.0-rc1-1.vdi
+--------------------------------------------------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+So far, OK
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+running Android-x86 in VirtualBox
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+-----------
+in HOST
+-----------
+tunctl -t tap-left
+ip link set up dev tap-left
+brctl addbr br-android
+brctl addif br-android tap-left
+ip link set up dev br-android
+ip addr add 10.1.1.1/24 dev br-android
+ip route add 10.1.1.0/24 dev br-android
+-----------
+// VirtualBox > (android-x86-6.0-rc1-1) > Settings > Network > Adapter 1 > bridge, br-android. 
+
+-----------
+in Android
+-----------
+-------------------------------------
+// in HOST
+[root@localhost busybox]# adb push busybox-x86_64 /data
+[root@localhost busybox]# adb shell
+
+// in Android
+root@vbox86p:/ # cd data/
+chmod 755 busybox-x86_64
+-------------------------------------
+// in Android
+
+netcfg eth1 down
+./busybox-x86_64 ifconfig eth1 down
+./busybox-x86_64 ifconfig eth1 10.1.1.2 netmask 255.255.255.0 up
+
+// ./busybox-x86_64 ip addr add 10.1.1.2/24 dev eth1
+// ./busybox-x86_64 ip route add default via 10.1.1.1 dev eth1
+
+./busybox-x86_64 route -n
+./busybox-x86_64 ifconfig
+./busybox-x86_64 ping 10.1.1.2
+-----------
+
+-------------------------------------
+ifconfig br-android down
+brctl delif br-android tap-left
+brctl delif br-android eth1
+brctl delbr br-android
+ifconfig tap-left down
+tunctl -d tap-left
+//ip link delete veth_android44
+//ip link delete X
+-------------------------------------
+
+http://cygnus.androidapksfree.com/hulk/com.UCMobile.intl_v10.10.0.796-238_Android-2.3.apk
+
+http://www.apkmirror.com/wp-content/uploads/uploaded/5758ac63cb322/com.android.chrome_51.0.2704.81-270408111_minAPI21(x86)(nodpi)_apkmirror.com.apk
+------------------------------------------------------------
+
+
+--------------------------------------------------------------------------
+netcat transfer file to android from fedora23
+--------------------------------------------------------------------------
+Server (fedora23)
+[root@localhost Desktop]# pwd
+/root/Desktop
+[root@localhost Desktop]# ls cm-browser5-20-38.apk 
+cm-browser5-20-38.apk
+[root@localhost Desktop]# 
+iptables -I INPUT -p tcp --dport 12123 -j ACCEPT
+iptables -D INPUT -p tcp --dport 12123 -j ACCEPT
+nc -l 12123 < chrome51.apk
+
+Client (android)
+nc 10.108.162.164 12123 > chrome51.apk
+
+Client (fedora/linux)
+nc -n 10.108.162.164 12123 > chrome51.apk
+
+
+--------------------------------------------------------------------------
+Android 6.0 (Marshmallow) Install apk - INSTALL_FAILED_INVALID_URI 
+--------------------------------------------------------------------------
+
+must be under the root directory:
+
+cd /
+pm install /sdcard/Download/chrome51.apk
+
+Success
+-------------------------------------
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+So far, OK
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+running two Android-x86 in VirtualBox, they connect to "ethernet bridge"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+brctl addbr br-android
+ip link set up dev br-android
+ip addr add 10.1.1.1/24 dev br-android
+ip route add 10.1.1.0/24 dev br-android
+
+ifconfig br-android down
+brctl delbr br-android
+
+// VirtualBox > (android-x86-6.0-rc1-1) > Settings > Network > Adapter 1 > bridge, br-android.
+
+// in android-x86-6.0-rc1-1
+ifconfig eth0 down
+ifconfig eth0 10.1.1.10 netmask 255.255.255.0 up
+
+// VirtualBox > (android-x86-6.0-rc1-2) > Settings > Network > Adapter 1 > bridge, br-android.
+
+// in android-x86-6.0-rc1-2
+ifconfig eth0 down
+ifconfig eth0 10.1.1.20 netmask 255.255.255.0 up
+
+android-x86-6.0-rc1-1 can ping android-x86-6.0-rc1-2, and vice verse
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+So far, OK
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+running two Android-x86 in VirtualBox, they connect to NS3(MANETs) via "ethernet bridge"
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+-----------
+in HOST
+-----------
+
+brctl addbr br_a_1
+brctl addbr br_a_2
+
+tunctl -t tap_a_1
+tunctl -t tap_a_2
+
+ifconfig tap_a_1 0.0.0.0 promisc up
+ifconfig tap_a_2 0.0.0.0 promisc up
+
+brctl addif br_a_1 tap_a_1
+ifconfig br_a_1 up
+brctl addif br_a_2 tap_a_2
+ifconfig br_a_2 up
+
+----------------------
+//You will also have to make sure that your kernel has ethernet filtering (ebtables, bridge-nf, arptables) disabled. If you do not do this, only STP and ARP traffic will be allowed to flow across your bridge and your whole scenario will not work.
+
+[root@localhost ~]# 
+
+cd /proc/sys/net/bridge
+for f in bridge-nf-*; do echo 0 > $f; done
+cd -
+
+-----------
+
+[root@localhost virtualbox-os]# pwd
+/run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+
+[root@localhost virtualbox-os]# ll -h
+-rw-------. 1 root root 5.1G 6月  14 21:24 android-x86-6.0-rc1-1.vdi
+-rw-------. 1 root root 5.1G 6月  14 21:17 android-x86-6.0-rc1-2.vdi
+[root@localhost virtualbox-os]# 
+
+-----------
+
+to set up the first android-x86 VM in VirtualBox.
+ ---> VirtualBox > (android-x86-6.0-rc1-1) > Settings > Network > Adapter 1 > bridge, br_a_1.
+
+to set up the second android-x86 VM in VirtualBox.
+ ---> VirtualBox > (android-x86-6.0-rc1-2) > Settings > Network > Adapter 1 > bridge, br_a_2.
+
+-----------
+
+// in android-x86-6.0-rc1-1
+ip addr add 172.17.0.1/16 dev eth0
+ping 172.17.0.2
+
+// in android-x86-6.0-rc1-2
+ip addr add 172.17.0.2/16 dev eth0
+ping 172.17.0.1
+
+//ifconfig eth0 down
+//ifconfig eth0 192.168.26.20 netmask 255.255.255.0 up
+
+------------------------------------------------------------------------------------------
+android-x86-6.0-rc1-1 can not ping android-x86-6.0-rc1-2
+------------------------------------------------------------------------------------------
+
+
+-----------------------
+running NS3
+-----------------------
+[root@localhost ~]# cd /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
+
+[root@localhost ns-3.25]# gedit scratch/manet-android-x86.cc 
+//----------------
+  TapBridgeHelper tapBridge;
+  tapBridge.SetAttribute ("Mode", StringValue ("UseLocal"));
+
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_1"));
+  tapBridge.Install (nodes.Get (0), devices.Get (0));
+
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_2"));
+  tapBridge.Install (nodes.Get (1), devices.Get (1));
+
+//----------------
+
+[root@localhost ns-3.25]# ./waf --run manet-android-x86 --vis
+
+
+------------------------------------------------------------------------------------------
+android-x86-6.0-rc1-1 can ping android-x86-6.0-rc1-2 successfully, and vice verse
+------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------
+clean
+------------------------------------------------------------------------------------------
+ifconfig br_a_1 down
+brctl delif br_a_1 tap_a_1
+brctl delbr br_a_1
+ifconfig tap_a_1 down
+tunctl -d tap_a_1
+
+ifconfig br_a_2 down
+brctl delif br_a_2 tap_a_2
+brctl delbr br_a_2
+ifconfig tap_a_2 down
+tunctl -d tap_a_2
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+So far, all is OK
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
