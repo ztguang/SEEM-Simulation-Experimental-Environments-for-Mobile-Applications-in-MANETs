@@ -265,14 +265,20 @@ usage(){
         Note: b + c <= 254
 
     For example:
-        seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86-6.0-rc1-
-        seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86-6.0-rc1-
+        [root@localhost fedora23server-share]# pwd
+            /opt/share-vm/fedora23server-share
+        [root@localhost fedora23server-share]# ls seem-tools-CLI-semi-auto.sh
+            seem-tools-CLI-semi-auto.sh
+        [root@localhost fedora23server-share]#
 
-        seem-tools-CLI-semi-auto.sh create 0 5 centos-manet android-x86-6.0-rc1-
-        seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86-6.0-rc1-
+        ./seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86-6.0-rc1-
+        ./seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86-6.0-rc1-
 
-        seem-tools-CLI-semi-auto.sh create 20 5 centos-manet android-x86-6.0-rc1-
-        seem-tools-CLI-semi-auto.sh destroy 20 5 centos-manet android-x86-6.0-rc1-
+        ./seem-tools-CLI-semi-auto.sh create 0 5 centos-manet android-x86-6.0-rc1-
+        ./seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86-6.0-rc1-
+
+        ./seem-tools-CLI-semi-auto.sh create 20 5 centos-manet android-x86-6.0-rc1-
+        ./seem-tools-CLI-semi-auto.sh destroy 20 5 centos-manet android-x86-6.0-rc1-
 
 	EOU
 }
