@@ -15,7 +15,7 @@
 #------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------
-# (OK)(OK)(All in CLI) Fedora23 + Docker(busybox) + NS3 + MANETs - testing
+# (OK)(OK)(All in CLI) Fedora23 + Docker(centos-manet) + NS3 + MANETs - testing
 #------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------
@@ -44,7 +44,8 @@ create_docker(){
 	# The file descriptor can be used with the setns(2) system
 	# call to change the network namespace associated with a task.
 
-	mkdir -p /var/run/netns 2>/dev/null
+	rm /var/run/netns -rf &>/dev/null
+	mkdir -p /var/run/netns &>/dev/null
 
 	# $1, that is, docker_node_num
 	# $2, that is, docker_image
@@ -60,10 +61,18 @@ create_docker(){
 			exit
 		fi
 
-		# docker run -it --rm --net='none' --name "docker_${id}" busybox /bin/sh
-		# gnome-terminal -x bash -c "docker run -it --rm --net='none' --name \"docker_${id}\" busybox /bin/sh"
-		gnome-terminal -x bash -c "docker run -it --rm --net='none' --name \"docker_${id}\" $2 /bin/sh"
-		sleep 1
+		# docker run -it --rm --net='none' --name "docker_${id}" centos-manet /bin/sh
+		# gnome-terminal -x bash -c "docker run -it --rm --net='none' --name \"docker_${id}\" centos-manet /bin/sh"
+		# gnome-terminal -x bash -c "docker run -it --rm --net='none' --name \"docker_${id}\" $2 /bin/sh"
+
+		#gnome-terminal -x bash -c "docker run -it --rm --net='none' --name \"docker_${id}\" $2"
+		# kernel network capabilities are not enabled by default.
+		# You are going to need to run your container with --privileged
+		gnome-terminal -x bash -c "docker run --privileged -it -d --net='none' --name \"docker_${id}\" $2"
+		sleep 2
+		docker exec docker_${id} /bin/sh -c "sed -i '21a \ router-id 10.1.0.${id}' /usr/local/etc/ospf6d.conf"
+		docker exec docker_${id} /bin/sh -c "zebra -d &>/dev/null"
+		docker exec docker_${id} /bin/sh -c "ospf6d -d &>/dev/null"
 
 		# SET VARIABLES
 		# get PID of CONTAINER
@@ -78,6 +87,8 @@ create_docker(){
 		ip link add ${veth} type veth peer name ${deth}
 		brctl addif ${bridge} ${veth}
 		ip link set ${veth} up
+		#ifconfig ${veth} 0.0.0.0 promisc up
+
 		ip link set ${deth} netns ${pid}
 
 		tunctl -t ${tap}
@@ -85,12 +96,13 @@ create_docker(){
 
 		brctl addif ${bridge} ${tap}
 		ifconfig ${bridge} up
+		#ifconfig ${bridge} 0.0.0.0 promisc up
 
 		ln -s /proc/${pid}/ns/net /var/run/netns/${pid}
 
 		ip netns exec ${pid} ip link set dev ${deth} name eth0
 		ip netns exec ${pid} ip link set eth0 up
-		ip netns exec ${pid} ip addr add 192.168.1.${id}/24 dev eth0
+		ip netns exec ${pid} ip addr add 192.168.26.${id}/24 dev eth0
 	done
 
 }
@@ -109,15 +121,18 @@ destroy_docker(){
 	do
 		bridge="br_d_${id}"
 		tap="tap_d_${id}"
-		#veth="veth_${id}"
+		veth="veth_${id}"
 
-		ifconfig ${bridge} down
-		brctl delif ${bridge} ${tap}
-		brctl delbr ${bridge}
+		ifconfig ${bridge} down &>/dev/null
+		brctl delif ${bridge} ${tap} &>/dev/null
+		brctl delbr ${bridge} &>/dev/null
 
-		ifconfig ${tap} down
-		tunctl -d ${tap}
-		#ifconfig ${veth} down
+		ifconfig ${tap} down &>/dev/null
+		tunctl -d ${tap} &>/dev/null
+		ifconfig ${veth} down &>/dev/null
+
+		docker stop "docker_${id}" &>/dev/null
+		docker rm "docker_${id}" &>/dev/null
 	done
 }
 
@@ -130,7 +145,7 @@ destroy_docker(){
 #--------------------------------------------------------------------------
 # (OK)(OK)(All in CLI) running two Android-x86 which connect to NS3(MANETs) via "ethernet bridge"
 #--------------------------------------------------------------------------
-# ip route add 192.168.1.0/24 dev br_a_1
+# ip route add 192.168.26.0/24 dev br_a_1
 # adb devices
 # adb root
 # adb -s 192.168.56.101:5555 shell
@@ -168,7 +183,7 @@ create_android(){
 
 		host0=$[100+id]
 		eth0_a_ip="192.168.56.${host0}"
-		eth1_a_ip="192.168.1.${host1}"
+		eth1_a_ip="192.168.26.${host1}"
 
 		tunctl -t ${tap}
 		ip link set up dev ${tap}
@@ -230,12 +245,12 @@ destroy_android(){
 		bridge="br_a_${id}"
 		tap="tap_a_${id}"
 
-		ifconfig ${bridge} down
-		brctl delif ${bridge} ${tap}
-		brctl delbr ${bridge}
+		ifconfig ${bridge} down &>/dev/null
+		brctl delif ${bridge} ${tap} &>/dev/null
+		brctl delbr ${bridge} &>/dev/null
 
-		ifconfig ${tap} down
-		tunctl -d ${tap}
+		ifconfig ${tap} down &>/dev/null
+		tunctl -d ${tap} &>/dev/null
 	done
 }
 
@@ -254,14 +269,14 @@ usage(){
         Note: b + c <= 254
 
     For example:
-        seem-tools-CLI-semi-auto.sh create 10 0
-        seem-tools-CLI-semi-auto.sh destroy 10 0
+        seem-tools-CLI-semi-auto.sh create 10 0 centos-manet android-x86-6.0-rc1-
+        seem-tools-CLI-semi-auto.sh destroy 10 0 centos-manet android-x86-6.0-rc1-
 
-        seem-tools-CLI-semi-auto.sh create 0 10
-        seem-tools-CLI-semi-auto.sh destroy 0 10
+        seem-tools-CLI-semi-auto.sh create 0 10 centos-manet android-x86-6.0-rc1-
+        seem-tools-CLI-semi-auto.sh destroy 0 10 centos-manet android-x86-6.0-rc1-
 
-        seem-tools-CLI-semi-auto.sh create 10 5
-        seem-tools-CLI-semi-auto.sh destroy 10 5
+        seem-tools-CLI-semi-auto.sh create 10 5 centos-manet android-x86-6.0-rc1-
+        seem-tools-CLI-semi-auto.sh destroy 10 5 centos-manet android-x86-6.0-rc1-
 
 	EOU
 }
@@ -273,35 +288,45 @@ usage(){
 #------------------------------------------------------------------------------------------
 
 create_ns3_manet_seem_cc(){
-	echo "create manet-seem.cc from manet-seem-template.cc"
+	echo "create seem-manet.cc from seem-manet-template.cc"
 
 	cd /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/scratch
-	rm manet-seem.cc -f 2>/dev/null
-	cp manet-seem-template.cc manet-seem.cc
+	rm seem-manet.cc -f &>/dev/null
+	cp seem-manet-template.cc seem-manet.cc
 
-	# after the 256 line of /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/scratch/manet-seem-template.cc
-	str='256a \\n  '
+	# after the 302 line of /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/scratch/seem-manet-template.cc
+	str='302a \\n  '
 
 	for((id=1; id<=$1; id++))
 	do
 		tap="tap_d_${id}"
-		inter="tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  tapBridge.Install (nodes.Get (${id}), devices.Get (${id}));\n  "
+		ns=$[id-1]
+		# inter="tapBridge.SetAttribute (\"Gateway\", Ipv4AddressValue (\"192.168.26.${id}\")); tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  tapBridge.Install (adhocNodes.Get (${id}), adhocDevices.Get (${id}));\n  "
+		inter="tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  tapBridge.Install (adhocNodes.Get (${ns}), adhocDevices.Get (${ns}));\n  "
+		#inter="tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  "
 		str=${str}${inter}
 	done
 
 	# a: docker_node_num, b:android_node_num
+	#host1=$[$1+1]
 	a=$1
 	b=$2
 	for((id=$[a+1]; id<=$[a+b]; id++))
 	do
 		tap="tap_a_${id}"
-		inter="tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  tapBridge.Install (nodes.Get (${id}), devices.Get (${id}));\n  "
+		ns=$[id-1]
+		#inter="tapBridge.SetAttribute (\"Gateway\", Ipv4AddressValue (\"192.168.26.${host1}\")); tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  tapBridge.Install (adhocNodes.Get (${id}), adhocDevices.Get (${id}));\n  "
+		inter="tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  tapBridge.Install (adhocNodes.Get (${ns}), adhocDevices.Get (${ns}));\n  "
+		#inter="tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  "
+
 		str=${str}${inter}
+
+		#host1=$[host1+1]
 	done
 
-	# sed -i '256a \\n  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_1"));\n  tapBridge.Install (nodes.Get (0), devices.Get (0));\n  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_2"));\n  tapBridge.Install (nodes.Get (0), devices.Get (0));' manet-seem.cc
+	# sed -i '302a \\n  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_1"));\n  tapBridge.Install (adhocNodes.Get (0), adhocDevices.Get (0));\n  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_2"));\n  tapBridge.Install (adhocNodes.Get (0), adhocDevices.Get (0));' seem-manet.cc
 
-	sed -i "${str}" manet-seem.cc
+	sed -i "${str}" seem-manet.cc
 
 	cd -
 }
@@ -316,7 +341,7 @@ start_ns3(){
 
 	cd /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
 
-	./waf --run scratch/manet-seem --vis
+	./waf --run scratch/seem-manet --vis
 
 	cd -
 }
@@ -334,14 +359,14 @@ start_ns3(){
 # [root@localhost virtualbox-os]# ls
 # android-x86-6.0-rc1-1.vdi  android-x86-6.0-rc1-2.vdi  android-x86-6.0-rc1-3.vdi  android-x86-6.0-rc1-4.vdi
 # 
-# ./seem-tools-CLI-semi-auto.sh create 2 0 busybox android-x86-6.0-rc1-
-# ./seem-tools-CLI-semi-auto.sh destroy 2 0 busybox android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh create 2 0 centos-manet android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh destroy 2 0 centos-manet android-x86-6.0-rc1-
 # 
-# ./seem-tools-CLI-semi-auto.sh create 0 2 busybox android-x86-6.0-rc1-
-# ./seem-tools-CLI-semi-auto.sh destroy 0 2 busybox android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh create 0 2 centos-manet android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh destroy 0 2 centos-manet android-x86-6.0-rc1-
 # 
-# ./seem-tools-CLI-semi-auto.sh create 3 2 busybox android-x86-6.0-rc1-
-# ./seem-tools-CLI-semi-auto.sh destroy 3 2 busybox android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh create 3 2 centos-manet android-x86-6.0-rc1-
+# ./seem-tools-CLI-semi-auto.sh destroy 3 2 centos-manet android-x86-6.0-rc1-
 #------------------------------------------------------------------------------------------
 
 # docker search image_name
@@ -379,12 +404,12 @@ if [ $# -eq 5 ]; then
 		destroy)
 			if [ $2 -gt 0 ]; then
 				destroy_docker $2
-				rm /var/run/netns -rf 2>/dev/null
+				rm /var/run/netns -rf &>/dev/null
 			fi
 
 			if [ $3 -gt 0 ]; then
 				destroy_android $3 $5
-				ifconfig vboxnet0 down 2>/dev/null
+				ifconfig vboxnet0 down &>/dev/null
 			fi
 		;;
 	esac
