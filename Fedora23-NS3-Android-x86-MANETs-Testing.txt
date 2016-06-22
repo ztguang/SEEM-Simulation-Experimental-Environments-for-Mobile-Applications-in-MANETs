@@ -294,7 +294,7 @@ So far, OK
 
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-running two Android-x86 in VirtualBox, they connect to NS3(MANETs) via "ethernet bridge"
+running five Android-x86 in VirtualBox, they connect to NS3(MANETs) via "ethernet bridge"
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 -----------
@@ -302,18 +302,34 @@ in HOST
 -----------
 
 brctl addbr br_a_1
-brctl addbr br_a_2
-
 tunctl -t tap_a_1
-tunctl -t tap_a_2
-
 ifconfig tap_a_1 0.0.0.0 promisc up
-ifconfig tap_a_2 0.0.0.0 promisc up
-
 brctl addif br_a_1 tap_a_1
 ifconfig br_a_1 up
+
+brctl addbr br_a_2
+tunctl -t tap_a_2
+ifconfig tap_a_2 0.0.0.0 promisc up
 brctl addif br_a_2 tap_a_2
 ifconfig br_a_2 up
+
+brctl addbr br_a_3
+tunctl -t tap_a_3
+ifconfig tap_a_3 0.0.0.0 promisc up
+brctl addif br_a_3 tap_a_3
+ifconfig br_a_3 up
+
+brctl addbr br_a_4
+tunctl -t tap_a_4
+ifconfig tap_a_4 0.0.0.0 promisc up
+brctl addif br_a_4 tap_a_4
+ifconfig br_a_4 up
+
+brctl addbr br_a_5
+tunctl -t tap_a_5
+ifconfig tap_a_5 0.0.0.0 promisc up
+brctl addif br_a_5 tap_a_5
+ifconfig br_a_5 up
 
 ----------------------
 //You will also have to make sure that your kernel has ethernet filtering (ebtables, bridge-nf, arptables) disabled. If you do not do this, only STP and ARP traffic will be allowed to flow across your bridge and your whole scenario will not work.
@@ -332,6 +348,9 @@ cd -
 [root@localhost virtualbox-os]# ll -h
 -rw-------. 1 root root 5.1G 6月  14 21:24 android-x86-6.0-rc1-1.vdi
 -rw-------. 1 root root 5.1G 6月  14 21:17 android-x86-6.0-rc1-2.vdi
+-rw-------. 1 root root 5.1G 6月  14 21:17 android-x86-6.0-rc1-3.vdi
+-rw-------. 1 root root 5.1G 6月  14 21:17 android-x86-6.0-rc1-4.vdi
+-rw-------. 1 root root 5.1G 6月  14 21:17 android-x86-6.0-rc1-5.vdi
 [root@localhost virtualbox-os]# 
 
 -----------
@@ -342,21 +361,30 @@ to set up the first android-x86 VM in VirtualBox.
 to set up the second android-x86 VM in VirtualBox.
  ---> VirtualBox > (android-x86-6.0-rc1-2) > Settings > Network > Adapter 1 > bridge, br_a_2.
 
+to set up the second android-x86 VM in VirtualBox.
+ ---> VirtualBox > (android-x86-6.0-rc1-3) > Settings > Network > Adapter 1 > bridge, br_a_3.
+
+to set up the second android-x86 VM in VirtualBox.
+ ---> VirtualBox > (android-x86-6.0-rc1-4) > Settings > Network > Adapter 1 > bridge, br_a_4.
+
+to set up the second android-x86 VM in VirtualBox.
+ ---> VirtualBox > (android-x86-6.0-rc1-5) > Settings > Network > Adapter 1 > bridge, br_a_5.
+
 -----------
 
 // in android-x86-6.0-rc1-1
 ip addr add 172.17.0.1/16 dev eth0
-ping 172.17.0.2
+ping 172.17.0.5
 
-// in android-x86-6.0-rc1-2
-ip addr add 172.17.0.2/16 dev eth0
+// in android-x86-6.0-rc1-5
+ip addr add 172.17.0.5/16 dev eth0
 ping 172.17.0.1
 
 //ifconfig eth0 down
 //ifconfig eth0 192.168.26.20 netmask 255.255.255.0 up
 
 ------------------------------------------------------------------------------------------
-android-x86-6.0-rc1-1 can not ping android-x86-6.0-rc1-2
+android-x86-6.0-rc1-1 can not ping android-x86-6.0-rc1-5
 ------------------------------------------------------------------------------------------
 
 
@@ -376,13 +404,22 @@ running NS3
   tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_2"));
   tapBridge.Install (nodes.Get (1), devices.Get (1));
 
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_3"));
+  tapBridge.Install (nodes.Get (2), devices.Get (2));
+
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_4"));
+  tapBridge.Install (nodes.Get (3), devices.Get (3));
+
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_5"));
+  tapBridge.Install (nodes.Get (4), devices.Get (4));
+
 //----------------
 
 [root@localhost ns-3.25]# ./waf --run manet-android-x86 --vis
 
 
 ------------------------------------------------------------------------------------------
-android-x86-6.0-rc1-1 can ping android-x86-6.0-rc1-2 successfully, and vice verse
+android-x86-6.0-rc1-1 can ping android-x86-6.0-rc1-5 successfully, and vice verse
 ------------------------------------------------------------------------------------------
 
 
@@ -401,8 +438,25 @@ brctl delbr br_a_2
 ifconfig tap_a_2 down
 tunctl -d tap_a_2
 
+ifconfig br_a_3 down
+brctl delif br_a_3 tap_a_3
+brctl delbr br_a_3
+ifconfig tap_a_3 down
+tunctl -d tap_a_3
+
+ifconfig br_a_4 down
+brctl delif br_a_4 tap_a_4
+brctl delbr br_a_4
+ifconfig tap_a_4 down
+tunctl -d tap_a_4
+
+ifconfig br_a_5 down
+brctl delif br_a_5 tap_a_5
+brctl delbr br_a_5
+ifconfig tap_a_5 down
+tunctl -d tap_a_5
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 So far, all is OK
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 
