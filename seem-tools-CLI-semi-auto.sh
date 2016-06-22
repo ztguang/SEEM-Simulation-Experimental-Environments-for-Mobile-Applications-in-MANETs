@@ -1,9 +1,5 @@
 #!/bin/sh
 
-#-----------------------------------------------------------------
-# Please download this file and view it by gedit.
-#-----------------------------------------------------------------
-
 #------------------------------------------------------------------------------------------
 # This tool (seem-tools-CLI-semi-auto.sh) is released under GNU GPL v2,v3
 # Author: Tongguang Zhang
