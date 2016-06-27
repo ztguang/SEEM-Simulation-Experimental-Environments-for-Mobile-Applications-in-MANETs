@@ -1,3 +1,4 @@
+
 // install_quagga-0.99.21mr2.2_on_android-x86_64_in_Fedora23.txt
 ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------
@@ -547,13 +548,6 @@ export AR="$CPATH/x86_64-linux-android-ar"
 
 ./configure --enable-user=root --enable-group=root --host=x86_64-android-linux --exec-prefix=/opt/android-on-linux/quagga/out --prefix=/opt/android-on-linux/quagga/out
 
-
-----------------------------------------
-[root@localhost quagga]# gedit Makefile
-//INCLUDES = -I/usr/inet6/include
-INCLUDES =
-----------------------------------------
-
 make -j4
 
 make install
@@ -569,8 +563,7 @@ mount -o remount,rw /
 
 ----------------------------------------
 
-adb shell mkdir /system/xbin/quagga/
-adb shell mkdir -p /opt/android-on-linux/quagga/out/etc
+adb shell mkdir -p /system/xbin/quagga/etc
 
 adb push out/sbin/ /system/xbin/quagga/
 adb push out/lib/libzebra.so /system/lib64/
@@ -606,7 +599,6 @@ interface eth0
 router ospf6
  instance-id 65
 ! router-id 10.1.0.1 (Note: Each node is not the same) (line 21)
- router-id 192.168.58.102
  interface eth0 area 0.0.0.0
  protocol-traffic-class 184
  redistribute ospf
@@ -614,8 +606,14 @@ router ospf6
 !
 -----------------------------------------
 
-adb push out/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
-adb push out/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
+adb shell mkdir -p /system/xbin/quagga/etc
+adb shell mkdir -p /opt/android-on-linux/quagga/out/etc
+
+adb push out/etc/zebra.conf /system/xbin/quagga/etc/
+adb push out/etc/ospf6d.conf /system/xbin/quagga/etc/
+
+adb shell cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
+adb shell cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
 
 -----------------------------------------
 
@@ -643,10 +641,17 @@ adb disconnect 192.168.58.102:5555
 
 
 ----------------------------------------------------------------------
+the following commands should be included in seem-tools-CLI-semi-auto.sh
+----------------------------------------------------------------------
+adb shell mkdir -p /opt/android-on-linux/quagga/out/etc
+adb shell cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
+adb shell cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
+adb shell /system/xbin/quagga/zebra -d
+adb shell /system/xbin/quagga/ospf6d -d
+----------------------------------------------------------------------
 
 ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------
 So far, cross compile successfully quagga-0.99.21mr2.2 for android-x86_64 in Fedora23
 ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------
-
