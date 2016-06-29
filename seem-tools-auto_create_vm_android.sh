@@ -81,7 +81,7 @@ create_vm(){
 		fi
 
 		echo "copying $vm_name from android-x86_64-6.0-rc1-0.vdi"
-		#cp android-x86_64-6.0-rc1-0.vdi $vm_name
+		cp android-x86_64-6.0-rc1-0.vdi $vm_name
 
 		kill -9 `ps aux|grep vboxnet0|grep -v grep|awk '{print $2}'` &>/dev/null
 
