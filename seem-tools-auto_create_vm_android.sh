@@ -13,9 +13,55 @@
 #     android-x86_64-6.0-rc1-0.vdi
 #
 # Note: this script will auto create android-x86_64-6.0-rc1-[1-252].vdi from android-x86_64-6.0-rc1-0.vdi
+#
+# NOTE: in android-x86_64-6.0-rc1-0.vdi,
+# execute "sed -i '459a init_in_android-x86_64.sh' /system/etc/init.sh"
+# copy quagga to /system/xbin/quagga, refer to http://blog.csdn.net/ztguang/article/details/51768680
 #------------------------------------------------------------------------------------------
 
 
+
+#------------------------------------------------------------------------------------------
+# copy_vdi() 
+# receive three parameter
+# num1=$1, the begin number of VM to be created
+# num2=$2, the end number of VM to be created
+# path=$3, the folder which includes the file android-x86_64-6.0-rc1-0.vdi
+#
+# copy android-x86_64-6.0-rc1-[1-252].vdi from android-x86_64-6.0-rc1-0.vdi, this process will take a long time.
+#------------------------------------------------------------------------------------------
+copy_vdi(){
+	num1=$1
+	num2=$2
+	path=$3
+
+	echo "enter $path"
+	cd $path
+
+	for((id=$1; id<=$2; id++))
+	do
+
+		vm_name=android-x86_64-6.0-rc1-$id.vdi
+		vm_name_bac=android-x86_64-6.0-rc1-$id.vdi.bac
+		name=android-x86_64-6.0-rc1-
+
+		# copy android-x86_64-6.0-rc1-[1-252].vdi from android-x86_64-6.0-rc1-0.vdi
+		# if [ ! -f "$vm_name" ]; then
+		if [ -f "$vm_name" ]; then
+			echo "$vm_name exists, backup it, then copy $vm_name from android-x86_64-6.0-rc1-0.vdi"
+			#mv $vm_name $vm_name_bac
+			rm $vm_name
+		fi
+
+		echo "copying $vm_name from android-x86_64-6.0-rc1-0.vdi"
+		cp android-x86_64-6.0-rc1-0.vdi $vm_name
+	done
+
+	echo "exit $path"
+	cd -
+
+}
+#------------------------------------------------------------------------------------------
 
 
 
@@ -26,21 +72,29 @@
 #------------------------------------------------------------------------------------------
 create_init(){
 
+	init_name=init_in_android-x86_64.sh.$1
+
 	eth0_br_ip="112.26.2.$1"
 
-	echo -e "#!/system/bin/sh\n" > init_in_android-x86_64.sh
-	echo "ifconfig eth0 down" >> init_in_android-x86_64.sh
-	echo "ifconfig eth0 ${eth0_br_ip} netmask 255.255.0.0 up" >> init_in_android-x86_64.sh
+	echo -e "#!/system/bin/sh\n" > $init_name
 
-	echo "mount -o remount,rw /system" >> init_in_android-x86_64.sh
-	echo "mount -o remount,rw /" >> init_in_android-x86_64.sh
+	# waiting a while, push init_in_android-x86_64.sh in create_vm(),
+	# due to that init_in_android-x86_64.sh may be exist in android-x86_64-6.0-rc1-[1-252].vdi
+	# if create android-x86_64-6.0-rc1-[1-252].vdi from scratch create, then can delete the following line. 
+	echo "sleep 45" >> $init_name
 
-	echo "mkdir -p /opt/android-on-linux/quagga/out/etc" >> init_in_android-x86_64.sh
-	echo "cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/" >> init_in_android-x86_64.sh
-	echo "cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/" >> init_in_android-x86_64.sh
+	echo "ifconfig eth0 down" >> $init_name
+	echo "ifconfig eth0 ${eth0_br_ip} netmask 255.255.0.0 up" >> $init_name
 
-	echo "/system/xbin/quagga/zebra -d" >> init_in_android-x86_64.sh
-	echo "/system/xbin/quagga/ospf6d -d" >> init_in_android-x86_64.sh
+	echo "mount -o remount,rw /system" >> $init_name
+	echo "mount -o remount,rw /" >> $init_name
+
+	echo "mkdir -p /opt/android-on-linux/quagga/out/etc" >> $init_name
+	echo "cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/" >> $init_name
+	echo "cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/" >> $init_name
+
+	echo "/system/xbin/quagga/zebra -d" >> $init_name
+	echo "/system/xbin/quagga/ospf6d -d" >> $init_name
 }
 #------------------------------------------------------------------------------------------
 
@@ -52,15 +106,14 @@ create_init(){
 # num1=$1, the begin number of VM to be created
 # num2=$2, the end number of VM to be created
 # path=$3, the folder which includes the file android-x86_64-6.0-rc1-0.vdi
-
-# NOTE: in android-x86_64-6.0-rc1-0.vdi,
-# execute "sed -i '459a init_in_android-x86_64.sh' /system/etc/init.sh"
-# copy quagga to /system/xbin/quagga, refer to http://blog.csdn.net/ztguang/article/details/51768680
 #------------------------------------------------------------------------------------------
 create_vm(){
 	num1=$1
 	num2=$2
 	path=$3
+
+	# make sure that the first vm get IP 192.168.56.3
+	kill -9 `ps aux|grep vboxnet0|grep -v grep|awk '{print $2}'` &>/dev/null
 
 	echo "enter $path"
 	cd $path
@@ -71,19 +124,8 @@ create_vm(){
 		echo "create init_in_android-x86_64.sh"
 		create_init $id
 
-		vm_name=android-x86_64-6.0-rc1-$id.vdi
 		name=android-x86_64-6.0-rc1-
-
-		# copy android-x86_64-6.0-rc1-[1-252].vdi from android-x86_64-6.0-rc1-0.vdi
-		# if [ ! -f "$vm_name" ]; then
-		if [ -f "$vm_name" ]; then
-			echo "$vm_name exists, remove it, then copy $vm_name from android-x86_64-6.0-rc1-0.vdi"
-		fi
-
-		echo "copying $vm_name from android-x86_64-6.0-rc1-0.vdi"
-		cp android-x86_64-6.0-rc1-0.vdi $vm_name
-
-		kill -9 `ps aux|grep vboxnet0|grep -v grep|awk '{print $2}'` &>/dev/null
+		init_name=init_in_android-x86_64.sh.${id}
 
 		VBoxManage createvm --name $name${id} --ostype Linux_64 --register
 		VBoxManage modifyvm $name${id} --memory 1024 --vram 128 --usb off --audio pulse --audiocontroller sb16 --acpi on --rtcuseutc off --boot1 disk --boot2 dvd --nic1 hostonly --nictype1 Am79C973 --hostonlyadapter1 vboxnet0 --nic2 none --nic3 none --nic4 none
@@ -96,7 +138,7 @@ create_vm(){
 		eth0_vn_ip="192.168.56.${host0}"
 
 		gnome-terminal -x bash -c "VBoxManage startvm --type headless $name${id}; \
-sleep 30; \
+sleep 35; \
 gnome-terminal -x bash -c \"adb connect ${eth0_vn_ip} && adb -s ${eth0_vn_ip}:5555 root\"; \
 sleep 1; \
 gnome-terminal -x bash -c \"adb connect ${eth0_vn_ip} && adb -s ${eth0_vn_ip}:5555 root\"; \
@@ -105,23 +147,30 @@ adb connect ${eth0_vn_ip}; \
 echo \"adb connect ${eth0_vn_ip}\"; \
 adb -s ${eth0_vn_ip}:5555 shell mount -o remount,rw /system; \
 adb -s ${eth0_vn_ip}:5555 shell mount -o remount,rw /; \
-adb push init_in_android-x86_64.sh /system/xbin/init_in_android-x86_64.sh; \
+adb push ${init_name} /system/xbin/init_in_android-x86_64.sh; \
 adb -s ${eth0_vn_ip}:5555 shell chmod 755 /system/xbin/init_in_android-x86_64.sh; \
+echo OK; \
 echo \"$name${id} poweroff\"; \
-sleep 1; \
-adb -s ${eth0_vn_ip}:5555 shell poweroff"
+sleep 2"
+#adb -s ${eth0_vn_ip}:5555 shell poweroff"
 
-	# adb -s ${eth0_vn_ip}:5555 shell sed -i '459a \ init_in_android-x86_64.sh' /system/etc/init.sh; \
-	# NOTE: in android-x86_64-6.0-rc1-0.vdi, execute "sed -i '459a init_in_android-x86_64.sh' /system/etc/init.sh"
+		# adb -s ${eth0_vn_ip}:5555 shell sed -i '459a \ init_in_android-x86_64.sh' /system/etc/init.sh; \
+		# NOTE: in android-x86_64-6.0-rc1-0.vdi, 
+		# execute "sed -i '459a init_in_android-x86_64.sh' /system/etc/init.sh"
 
-	# add cp command after the line 459 of /system/etc/init.sh in android-x86_64
-	# run my script at boot time in android-x86_64
+		# add cp command after the line 459 of /system/etc/init.sh in android-x86_64
+		# run my script at boot time in android-x86_64
+
+		#  Serial creation, otherwise, have problems. 
+		sleep 40
+
+		VBoxManage controlvm $name${id} poweroff
+		#VBoxManage modifyvm $name${id} --memory 1024 --vram 128 --usb off --audio pulse --audiocontroller sb16 --acpi on --rtcuseutc off --boot1 disk --boot2 dvd --nic1 bridged --bridgeadapter1 virbr0 --nic2 none --nic3 none --nic4 none
 
 	done
 
 	echo "exit $path"
 	cd -
-
 }
 #------------------------------------------------------------------------------------------
 
@@ -165,6 +214,10 @@ if [ $# -eq 3 ]; then
 		exit
 	fi
 
+	# copy android-x86_64-6.0-rc1-[1-252].vdi from android-x86_64-6.0-rc1-0.vdi
+	# this process will take a long time.
+	copy_vdi $1 $2 $3
+
 	create_vm $1 $2 $3
 else
 	usage
@@ -181,3 +234,6 @@ fi
 
 # [root@localhost fedora23server-share]# ./seem-tools-auto_create_vm_android.sh 1 1 /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 
+# [root@localhost fedora23server-share]# ./seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+
+# [root@localhost fedora23server-share]# ./seem-tools-auto_create_vm_android.sh 1 5 /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
