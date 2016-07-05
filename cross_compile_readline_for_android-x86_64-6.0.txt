@@ -27,10 +27,10 @@ make clean
 
 export NDK_ROOT="/opt/android-on-linux/android-ndk-r12"
 export SYSROOT="$NDK_ROOT/platforms/android-23/arch-x86_64"
-export CFLAGS="-g --pipe --sysroot=$SYSROOT -fPIE -I$NDK_ROOT/toolchains/x86_64-4.9/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x/include-fixed/ -I$NDK_ROOT/platforms/android-23/arch-x86_64/usr/include -I$NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include/ -I$NDK_ROOT/sources/android/support/include/"
+export CFLAGS="-g --pipe --sysroot=$SYSROOT -fPIC -fpic -I$NDK_ROOT/toolchains/x86_64-4.9/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x/include-fixed/ -I$NDK_ROOT/platforms/android-23/arch-x86_64/usr/include -I$NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include/ -I$NDK_ROOT/sources/android/support/include/"
 export CPPFLAGS="$CFLAGS"
 export CXXFLAGS="$CFLAGS"
-export LDFLAGS="--sysroot=$SYSROOT -fPIE -pie -L$NDK_ROOT/platforms/android-23/arch-x86_64/usr/lib/ -L$NDK_ROOT/sources/cxx-stl/stlport/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/gnu-libstdc++/4.9/libs/x86_64 -shared -lstlport_shared -lm -lc++ -lc"
+export LDFLAGS="--sysroot=$SYSROOT -fPIE -fpie -L$NDK_ROOT/platforms/android-23/arch-x86_64/usr/lib/ -L$NDK_ROOT/sources/cxx-stl/stlport/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/gnu-libstdc++/4.9/libs/x86_64 -shared -lstlport_shared -lm -lc++ -lc"
 export CPATH="/opt/android-on-linux/android-ndk-r12/toolchains/x86_64-4.9/prebuilt/linux-x86_64/bin"
 export CPP="$CPATH/x86_64-linux-android-cpp"
 export CXX="$CPATH/x86_64-linux-android-g++"
