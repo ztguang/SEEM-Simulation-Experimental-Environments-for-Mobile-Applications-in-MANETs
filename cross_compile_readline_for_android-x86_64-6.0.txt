@@ -1,0 +1,68 @@
+cross_compile_readline_for_android-x86_64-6.0.txt
+
+download readline: ftp://ftp.cwru.edu/pub/bash/readline-6.3.tar.gz
+
+
+[root@localhost readline-6.3]# pwd
+/opt/android-on-linux/readline-6.3
+[root@localhost readline-6.3]# 
+
+-----
+Note: no use
+-----
+// update the config.sub and config.guess files (the ones in the libreadline source are very old and don't have arm-linux-androideabi)
+
+cp /usr/share/automake-1.15/config.{sub,guess} support/
+-----
+
+
+
+-----
+Note: first, execute autoconf:  it looks like a stale `configure', can regenerate it using autoconf.
+-----
+
+autoconf
+
+make clean
+
+export NDK_ROOT="/opt/android-on-linux/android-ndk-r12"
+export SYSROOT="$NDK_ROOT/platforms/android-23/arch-x86_64"
+export CFLAGS="-g --pipe --sysroot=$SYSROOT -fPIE -I$NDK_ROOT/toolchains/x86_64-4.9/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x/include-fixed/ -I$NDK_ROOT/platforms/android-23/arch-x86_64/usr/include -I$NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include/ -I$NDK_ROOT/sources/android/support/include/"
+export CPPFLAGS="$CFLAGS"
+export CXXFLAGS="$CFLAGS"
+export LDFLAGS="--sysroot=$SYSROOT -fPIE -pie -L$NDK_ROOT/platforms/android-23/arch-x86_64/usr/lib/ -L$NDK_ROOT/sources/cxx-stl/stlport/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/gnu-libstdc++/4.9/libs/x86_64 -shared -lstlport_shared -lm -lc++ -lc"
+export CPATH="/opt/android-on-linux/android-ndk-r12/toolchains/x86_64-4.9/prebuilt/linux-x86_64/bin"
+export CPP="$CPATH/x86_64-linux-android-cpp"
+export CXX="$CPATH/x86_64-linux-android-g++"
+export CC="$CPATH/x86_64-linux-android-gcc"
+export LD="$CPATH/x86_64-linux-android-ld"
+export AR="$CPATH/x86_64-linux-android-ar"
+export STRIP="$CPATH/x86_64-linux-android-strip"
+export OBJDUMP="$CPATH/x86_64-linux-android-objdump"
+export RANLIB="$CPATH/x86_64-linux-android-ranlib"
+
+./configure --host=x86_64-android-linux \
+ --prefix=/opt/android-on-linux/readline-6.3/out \
+ --exec-prefix=/opt/android-on-linux/readline-6.3/out
+
+
+make -j4
+
+make install
+
+// $STRIP /opt/android-on-linux/quagga/out/sbin/*
+
+ll -h out/lib
+
+[root@localhost readline-6.3]# ll -h out/lib
+总用量 1.8M
+-rw-r--r--. 1 root root 121K 7月   5 14:34 libhistory.a
+lrwxrwxrwx. 1 root root   15 7月   5 14:34 libhistory.so -> libhistory.so.6
+lrwxrwxrwx. 1 root root   17 7月   5 14:34 libhistory.so.6 -> libhistory.so.6.3
+-r-xr-xr-x. 1 root root  72K 7月   5 14:34 libhistory.so.6.3
+-rw-r--r--. 1 root root 983K 7月   5 14:34 libreadline.a
+lrwxrwxrwx. 1 root root   16 7月   5 14:34 libreadline.so -> libreadline.so.6
+lrwxrwxrwx. 1 root root   18 7月   5 14:34 libreadline.so.6 -> libreadline.so.6.3
+-r-xr-xr-x. 1 root root 536K 7月   5 14:34 libreadline.so.6.3
+
+
