@@ -71,8 +71,10 @@ create_docker(){
 		docker exec docker_${id} /bin/sh -c "ospf6d -d &>/dev/null"
 
 		# SET VARIABLES
+
 		# get PID of CONTAINER
 		pid=$(docker inspect -f '{{.State.Pid}}' "docker_${id}")
+
 		bridge="br_d_${id}"
 		tap="tap_d_${id}"
 		veth="veth_${id}"
@@ -98,7 +100,7 @@ create_docker(){
 
 		ip netns exec ${pid} ip link set dev ${deth} name eth0
 		ip netns exec ${pid} ip link set eth0 up
-		ip netns exec ${pid} ip addr add 192.168.26.${id}/24 dev eth0
+		ip netns exec ${pid} ip addr add 112.26.1.${id}/16 dev eth0
 	done
 
 }
@@ -168,7 +170,12 @@ create_android(){
 	# $3, that is, VM_image
 	# $4, that is, PATH of *.vdi
 
-	host1=$[$1+1]
+	# You will also have to make sure that your kernel has ethernet filtering (ebtables, bridge-nf,
+	# arptables) disabled. If you do not do this, only STP and ARP traffic will be allowed to 
+	# flow across your bridge and your whole scenario will not work.
+	cd /proc/sys/net/bridge
+	for f in bridge-nf-*; do echo 0 > $f; done
+	cd -
 
 	for((id=1; id<=$2; id++))
 	do
@@ -185,16 +192,20 @@ create_android(){
 		bridge="br_a_${id}"
 		tap="tap_a_${id}"
 
-		host0=$[100+id]
-		eth0_a_ip="192.168.56.${host0}"
-		eth1_a_ip="192.168.26.${host1}"
+		# look at VirtualBox Gloable Setting, that is, vboxnet0: 192.168.56.1, 192.168.56.2(DHCPD), (3-254)
+		#host0=$[2+id]
+		#eth0_a_ip="192.168.56.${host0}"
+
+		#eth0_a_ip="112.26.2.${id}"
 
 		tunctl -t ${tap}
-		ip link set up dev ${tap}
+		#ip link set up dev ${tap}
+		ifconfig ${tap} 0.0.0.0 promisc up
 		brctl addbr ${bridge}
 		brctl addif ${bridge} ${tap}
-		ip link set up dev ${bridge}
+		#ip link set up dev ${bridge}
 		ifconfig ${bridge} up
+		#ifconfig ${bridge} 0.0.0.0 promisc up
 
 		# VBoxManage modifyvm android-x86_64-6.0-rc1-${id} --memory 1024 --nic1 hostonly --nictype1 Am79C973 --hostonlyadapter1 vboxnet0  --nic2 bridged --bridgeadapter2 ${bridge}
 		# VBoxManage startvm android-x86_64-6.0-rc1-${id}
@@ -233,7 +244,7 @@ create_android(){
 		# adb -s ${eth0_a_ip}:5555 shell /system/xbin/quagga/ospf6d -d
 
 		# adb -s ${eth0_a_ip}:5555 shell ifconfig eth1 down
-		# adb -s ${eth0_a_ip}:5555 shell ifconfig eth1 ${eth1_a_ip} netmask 255.255.255.0 up
+		# adb -s ${eth0_a_ip}:5555 shell ifconfig eth1 ${eth0_a_ip} netmask 255.255.255.0 up
 		# adb -s ${eth0_a_ip}:5555 shell ifconfig eth0 down
 
 		# VBoxManage createvm --name android-x86_64-6.0-rc1-1 --ostype Linux_64 --register
@@ -244,13 +255,15 @@ create_android(){
 
 		echo "VBoxManage startvm $3${id}"
 
-		gnome-terminal -x bash -c "VBoxManage createvm --name $3${id} --ostype Linux_64 --register; VBoxManage modifyvm $3${id} --memory 1024 --vram 128 --usb off --audio pulse --audiocontroller sb16 --acpi on --rtcuseutc off --boot1 disk --boot2 dvd --nic1 hostonly --nictype1 Am79C973 --hostonlyadapter1 vboxnet0 --nic2 bridged --bridgeadapter2 ${bridge} --nic3 none --nic4 none; VBoxManage storagectl $3${id} --name \"IDE Controller\" --add ide --controller PIIX4; VBoxManage storageattach $3${id} --storagectl \"IDE Controller\" --port 0 --device 0 --type hdd --medium $4/$3${id}.vdi; VBoxManage startvm $3${id}; sleep 30; adb connect ${eth0_a_ip}; sleep 1; adb -s ${eth0_a_ip}:5555 root; sleep 1; adb connect ${eth0_a_ip}; sleep 1; adb -s ${eth0_a_ip}:5555 root; sleep 1; adb connect ${eth0_a_ip}; adb -s ${eth0_a_ip}:5555 shell mkdir -p /opt/android-on-linux/quagga/out/etc; adb -s ${eth0_a_ip}:5555 shell cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/; adb -s ${eth0_a_ip}:5555 shell cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/; adb -s ${eth0_a_ip}:5555 shell /system/xbin/quagga/zebra -d; adb -s ${eth0_a_ip}:5555 shell /system/xbin/quagga/ospf6d -d; adb -s ${eth0_a_ip}:5555 shell ifconfig eth1 down; adb -s ${eth0_a_ip}:5555 shell ifconfig eth1 ${eth1_a_ip} netmask 255.255.255.0 up; adb -s ${eth0_a_ip}:5555 shell ifconfig eth0 down"
+		gnome-terminal -x bash -c "VBoxManage createvm --name $3${id} --ostype Linux_64 --register; \
+VBoxManage modifyvm $3${id} --memory 1024 --vram 128 --usb off --audio pulse --audiocontroller sb16 --acpi on --rtcuseutc off --boot1 disk --boot2 dvd --nic1 bridged --bridgeadapter1 ${bridge} --nic2 none --nic3 none --nic4 none; \
+VBoxManage storagectl $3${id} --name \"IDE Controller\" --add ide --controller PIIX4; \
+VBoxManage internalcommands sethduuid $4/$3${id}.vdi; \
+VBoxManage storageattach $3${id} --storagectl \"IDE Controller\" --port 0 --device 0 --type hdd --medium $4/$3${id}.vdi; \
+VBoxManage startvm $3${id}; \
+sleep 100"
 
-		echo "adb connect ${eth0_a_ip}"
-
-		host1=$[host1+1]
 	done
-
 }
 
 
@@ -269,9 +282,9 @@ destroy_android(){
 	for((id=1; id<=$1; id++))
 	do
 		echo "VBoxManage controlvm $2${id} poweroff"
-		VBoxManage controlvm $2${id} poweroff
-		#VBoxManage modifyvm $2${id} --nic1 hostonly --nictype1 Am79C973 --hostonlyadapter1 vboxnet0 --nic2 none --nic3 none --nic4 none
-		VBoxManage unregistervm $2${id}
+
+		VBoxManage controlvm $2${id} poweroff &>/dev/null
+		VBoxManage unregistervm $2${id} &>/dev/null
 		rm "/root/VirtualBox VMs/$2${id}" -rf &>/dev/null
 
 		sleep 1
@@ -383,17 +396,20 @@ start_ns3(){
 
 	./waf --run scratch/seem-manet --vis
 
+#	./waf --run scratch/seem-manet-5-android --vis
+
 	cd -
 }
 
 
 #------------------------------------------------------------------------------------------
-# ./seem-tools-CLI-semi-auto.sh para1 para2 para3 para4 para5 
+# ./seem-tools-CLI-semi-auto.sh para1 para2 para3 para4 para5 para6
 # para1 ($1), that is, the value is create or destroy
 # para2 ($2), that is, the number of dockers to be created
 # para3 ($3), that is, the number of androids to be created
 # para4 ($4), that is, docker image, such as, busybox or ubuntu, etc.
 # para5 ($5), that is, VM image, such as, android-x86_64-6.0-rc1-
+# para6 ($6), that is, the path of VM image, such as, android-x86_64-6.0-rc1-
 # [root@localhost virtualbox-os]# pwd
 # /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 # [root@localhost virtualbox-os]# ls
@@ -437,7 +453,15 @@ if [ $# -eq 6 ]; then
 			if [ $3 -gt 0 ]; then create_android $2 $3 $5 $6; fi
 			if [ $[a+b] -gt 0 ]; then
 				create_ns3_manet_seem_cc $2 $3
-				start_ns3
+
+	# waiting a while, push init_in_android-x86_64.sh in create_vm(),
+	# due to that init_in_android-x86_64.sh may be exist in android-x86_64-6.0-rc1-[1-252].vdi
+	# if create android-x86_64-6.0-rc1-[1-252].vdi from scratch create, then can delete the following line. 
+	# look at seem-tools-auto_create_vm_android.sh
+				#sleep 60
+
+				#start_ns3
+
 				#echo $2
 			fi
 		;;
@@ -464,9 +488,41 @@ fi
 # android-x86_64-6.0-rc1-1.vdi  android-x86_64-6.0-rc1-3.vdi  android-x86_64-6.0-rc1-5.vdi
 # [root@localhost virtualbox-os]# 
 
-# ./seem-tools-CLI-semi-auto.sh create 0 1 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
-# ./seem-tools-CLI-semi-auto.sh destroy 0 1 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+#-----------------------------------------------------------------------------
+# 25 docker (centos)
+#-----------------------------------------------------------------------------
+# systemctl start docker.service
 
+# ./seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+
+# ./seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+
+# cd /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
+# ./waf --run scratch/seem-manet --vis
+# ./waf --run scratch/seem-manet-25-docker --vis
+# ./waf --run scratch/seem-manet-5-docker --vis
+#
+# docker run --privileged -it -d --name "docker_1" centos-manet
+# docker ps -a
+# docker attach docker_1
+# docker stop docker_1
+# docker rm docker_1
+
+# docker ps
+# docker rmi 2c067614b89f
+
+#-----------------------------------------------------------------------------
+# 5 android-x86_64
+#-----------------------------------------------------------------------------
+#
+# ./seem-tools-CLI-semi-auto.sh create 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+#
+# ./seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+#
+# cd /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
+# ./waf --run scratch/seem-manet --vis
+# ./waf --run scratch/seem-manet-5-android --vis
+#
 #------------------------------------------------------------------------------------------
 # So far, All is OK
 #------------------------------------------------------------------------------------------
