@@ -62,14 +62,17 @@ xorp/fea/mfea_proto_comm.cc:1657:46: error: invalid conversion from 'void*' to '
 /opt/android-on-linux/android-ndk-r12/platforms/android-23/arch-x86/usr/include/sys/socket.h:112:0: note: this is the location of the previous definition
  #define CMSG_DATA(cmsg) ((void*)((char*)(cmsg) + CMSG_ALIGN(sizeof(struct cmsghdr))))
 
+xorp/fea/mfea_proto_comm.cc:1700:40: error: 'inet6_option_next' was not declared in this scope
+
 [root@localhost quagga]# gedit ./xpimd/xorp/fea/mfea_proto_comm.cc
 	// add the following lines
 
 	#define CMSG_DATA(cmsg) ((uint8_t*)((char*)(cmsg) + CMSG_ALIGN(sizeof(struct cmsghdr))))
 #ifndef CMSG_LEN
 
-#else // ! HAVE_RFC3542
+#include "libxorp/utils.hh"
 	#undef HAVE_IPV6_MULTICAST_ROUTING
+	#undef HAVE_RFC3542
 
 ++++++++++++++++++++++
 xorp/pim/pim_mrt_task.cc:185:14: error: ambiguous overload for 'operator!=' (operand types are 'std::__ndk1::list<PimMreTask*>::reverse_iterator {aka std::__ndk1::reverse_iterator<std::__ndk1::__list_iterator<PimMreTask*, void*> >}' and 'std::__ndk1::list<PimMreTask*>::reverse_iterator {aka std::__ndk1::reverse_iterator<std::__ndk1::__list_iterator<PimMreTask*, void*> >}')
@@ -115,6 +118,8 @@ zebra_client.cc:242: error: undefined reference to 'zfree(int, void*)'
 
 [root@localhost quagga]# gedit xpimd/zebra_client.cc 
 
+// add the following lines
+
 #if 1 /* set to 1 to use system alloc directly */
 #undef XMALLOC
 #undef XCALLOC
@@ -133,6 +138,7 @@ zebra_router.cc:48: error: undefined reference to 'memory_init()'
 
     vty_init(master);
     //memory_init();
+    memory_init();
 
 ++++++++++++++++++++++
 ../lib/.libs/libzebra.so: error: undefined reference to 'crypt'
@@ -142,6 +148,359 @@ download from (libcrypt.so.1) https://sourceforge.net/p/android-x86/bootable_new
 cp libcrypt.so.1 /opt/android-on-linux/android-ndk-r12/platforms/android-23/arch-x86/usr/lib/libcrypt.so
 
 ++++++++++++++++++++++
+/opt/android-on-linux/android-ndk-r12/toolchains/x86_64-4.9/prebuilt/linux-x86_64/bin/../lib/gcc/x86_64-linux-android/4.9.x/../../../../x86_64-linux-android/bin/ld: warning: skipping incompatible /opt/android-on-linux/android-ndk-r12/platforms/android-23/arch-x86_64/usr/lib//libstdc++.so while searching for stdc++
+
+	export LDFLAGS="--sysroot=$SYSROOT -fPIE -fpie -L$NDK_ROOT/platforms/android-23/arch-x86_64/usr/lib/
+should be:
+	export LDFLAGS="--sysroot=$SYSROOT -fPIE -fpie -L$NDK_ROOT/platforms/android-23/arch-x86_64/usr/lib64/
+++++++++++++++++++++++
+
+++++++++++++++++++++++
+
+[root@localhost quagga]# gedit configure
+
+  /* LIBS="-lcrypt $LIBS" */
+  LIBS=" $LIBS"
+
+  /* LIBS="-lm $LIBS" */
+  LIBS=" $LIBS"
+  /* LIBM="-lm" */
+  LIBM=""
+
+++++++++++++++++++++++
+
+root@x86:/ # /system/xbin/quagga/zebra                                         
+CANNOT LINK EXECUTABLE: cannot locate symbol "__errno_location" referenced by "/system/lib/libcrypt.so.1"...
+1|root@x86:/ # 
+
+-----------------
+CANNOT LINK EXECUTABLE: cannot locate symbol
+
+If you get an error like CANNOT LINK EXECUTABLE: cannot locate symbol "signal" referenced by "gatord" on android, please ensure you are using the correct version of the Android ndk: ndk32 for 32-bit targets and ndk64 for 64-bit targets.
+
+++++++++++++++++++++++
+[root@localhost quagga]# gedit lib/crypt.c lib/crypt.h
+
+http://blog.csdn.net/ztguang/article/details/51763624
+
+++++++++++++++++++++++
+
+[root@localhost quagga]# gedit lib/command.c
+
+#include <crypt.h>
+
+[root@localhost quagga]# gedit lib/Makefile.am                 // add crypt.c & crypt.h
+
+libzebra_la_SOURCES = \
+	network.c pid_output.c getopt.c getopt1.c daemon.c \
+	checksum.c vector.c linklist.c vty.c built.c command.c crypt.c \
+
+pkginclude_HEADERS = \
+	buffer.h checksum.h command.h crypt.h filter.h getopt.h hash.h \
+
+++++++++++++++++++++++
+/opt/android-on-linux/android-ndk-r12/toolchains/x86-4.9/prebuilt/linux-x86_64/bin/../lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld: error: ../lib/.libs/libzebra.a(thread.o): multiple definition of 'thread_timer_remain_second'
+/opt/android-on-linux/android-ndk-r12/toolchains/x86-4.9/prebuilt/linux-x86_64/bin/../lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld: xpimd-zebra_thread.o: previous definition here
+-------
+
+[root@localhost quagga]# gedit ./xpimd/zebra_thread.hh ./xpimd/zebra_thread.cc
+
+funcname_  -->  zt_
+thread_  -->  zt_thread_
+
+++++++++++++++++++++++
+[root@localhost quagga]# gedit xpimd/zebra_router.cc
+
+    //memory_init();
+
+++++++++++++++++++++++
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+(OK)(OK)(OK) (x86_64) —— android-x86_64-6.0-rc1 (API 23) —— Success Success Success
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+[root@localhost quagga]# pwd
+/opt/android-on-linux/quagga
+[root@localhost quagga]# 
+
+// cp -a /opt/android-on-linux/readline-6.3/out/lib/* /opt/android-on-linux/android-ndk-r12/platforms/android-23/arch-x86_64/usr/lib/
+
+// mkdir /opt/android-on-linux/android-ndk-r12/platforms/android-23/arch-x86_64/usr/include/readline/
+// cp -r /opt/android-on-linux/readline-6.3/out/include/readline/ /opt/android-on-linux/android-ndk-r12/platforms/android-23/arch-x86_64/usr/include/
+
+------------------------------
+
+./bootstrap.sh 
+
+
+make clean
+
+export NDK_ROOT="/opt/android-on-linux/android-ndk-r12"
+export SYSROOT="$NDK_ROOT/platforms/android-23/arch-x86_64"
+export CFLAGS="-g --pipe --sysroot=$SYSROOT -fPIC -fpic -I$NDK_ROOT/toolchains/x86_64-4.9/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x/include-fixed/ -I$NDK_ROOT/platforms/android-23/arch-x86_64/usr/include -I$NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include/ -I$NDK_ROOT/sources/android/support/include/"
+export CPPFLAGS="$CFLAGS"
+export CXXFLAGS="$CFLAGS"
+export LDFLAGS="--sysroot=$SYSROOT -fPIE -fpie -L$NDK_ROOT/platforms/android-23/arch-x86_64/usr/lib64/ -L$NDK_ROOT/sources/cxx-stl/stlport/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/gnu-libstdc++/4.9/libs/x86_64 -lstlport_shared -lm -lc++ -lc"
+export CPATH="/opt/android-on-linux/android-ndk-r12/toolchains/x86_64-4.9/prebuilt/linux-x86_64/bin"
+export CPP="$CPATH/x86_64-linux-android-cpp"
+export CXX="$CPATH/x86_64-linux-android-g++"
+export CC="$CPATH/x86_64-linux-android-gcc"
+export LD="$CPATH/x86_64-linux-android-ld"
+export AR="$CPATH/x86_64-linux-android-ar"
+export STRIP="$CPATH/x86_64-linux-android-strip"
+export OBJDUMP="$CPATH/x86_64-linux-android-objdump"
+export RANLIB="$CPATH/x86_64-linux-android-ranlib"
+
+./configure --host=x86_64-android-linux \
+ --enable-user=root \
+ --enable-group=root \
+ --prefix=/opt/android-on-linux/quagga/out \
+ --exec-prefix=/opt/android-on-linux/quagga/out
+
++++++++++++++++++++++++++++++++++++++++++++++++++
+[root@localhost quagga]# gedit Makefile
+
+INCLUDES = -I/usr/inet6/include -->  INCLUDES =
++++++++++++++++++++++++++++++++++++++++++++++++++
+
+make -j4
+
+make install
+
+------------------------------------------------------------------------
+So far, OK
+------------------------------------------------------------------------
+
+
+
+./configure --host=x86_64-android-linux \
+ --disable-bgpd \
+ --disable-ripd \
+ --disable-ripngd \
+ --disable-isisd \
+ --enable-ipv6 \
+ --enable-vtysh \
+ --enable-user=root \
+ --enable-group=root \
+ --enable-vty-group=root \
+ --prefix=/opt/android-on-linux/quagga/out \
+ --exec-prefix=/opt/android-on-linux/quagga/out
+
+
+// ./configure --enable-user=root --enable-group=root --host=x86_64-android-linux --exec-prefix=/opt/android-on-linux/quagga/out --prefix=/opt/android-on-linux/quagga/out
+
+make -j4
+
+//make -e -j4
+
+make install
+
+$STRIP /opt/android-on-linux/quagga/out/sbin/*
+
+ll -h out/sbin
+ll -h out/lib
+ll -h out/etc
+----------------------------------------
+for Docker
+
+[root@localhost quagga]# ./configure --enable-user=root --enable-group=root --with-cflags=-ggdb --sysconfdir=/usr/local/etc/quagga --enable-vtysh --localstatedir=/var/run/quagga
+----------------------------------------
+
+[root@localhost quagga]# ll -h out/sbin/
+-rwxr-xr-x. 1 root root 258K 7月   6 22:11 babeld
+-rwxr-xr-x. 1 root root 1.8M 7月   6 22:11 bgpd
+-rwxr-xr-x. 1 root root 1.2M 7月   6 22:11 ospf6d
+-rwxr-xr-x. 1 root root  25K 7月   6 22:11 ospfclient
+-rwxr-xr-x. 1 root root  26K 7月   6 22:11 ospfd
+-rwxr-xr-x. 1 root root 309K 7月   6 22:11 ripd
+-rwxr-xr-x. 1 root root 261K 7月   6 22:11 ripngd
+-rwxr-xr-x. 1 root root  56K 7月   6 22:11 watchquagga
+-rwxr-xr-x. 1 root root  20M 7月   6 22:11 xpimd
+-rwxr-xr-x. 1 root root 432K 7月   6 22:11 zebra
+
+// [root@localhost quagga]# $STRIP /opt/android-on-linux/quagga/out/sbin/*
+
+----------------------------------------
+root@x86:/ # 
+mount -o remount,rw /system
+mount -o remount,rw /
+
+----------------------------------------
+
+adb connect 192.168.56.3 && adb -s 192.168.56.3 root
+adb connect 192.168.56.4 && adb -s 192.168.56.4 root
+adb connect 192.168.56.5 && adb -s 192.168.56.5 root
+adb connect 192.168.56.6 && adb -s 192.168.56.6 root
+adb connect 192.168.56.7 && adb -s 192.168.56.7 root
+
+sleep 1
+adb connect 192.168.56.12 && adb -s 192.168.56.12 root
+adb disconnect 192.168.56.11
+
+----------------------------------------
+
+adb connect 192.168.56.3 && adb -s 192.168.56.3 root
+
+// adb shell ls /system/xbin/quagga
+
+adb shell mkdir -p /system/xbin/quagga/etc
+
+adb shell mount -o remount,rw /system
+adb shell mount -o remount,rw /
+
+adb push out/sbin/ /system/xbin/quagga/
+adb push out/lib/libzebra.so /system/lib64/
+adb push out/lib/libospf.so /system/lib64/
+adb push out/lib/libospfapiclient.so /system/lib64/
+
+adb push /opt/android-on-linux/android-ndk-r12/sources/cxx-stl/stlport/libs/x86_64/libstlport_shared.so /system/lib64/
+adb push /opt/android-on-linux/android-ndk-r12/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so /system/lib64/
+
+// adb push /opt/android-on-linux/readline-6.3/out/lib/libreadline.so.6.3 /system/lib64/libreadline.so.6
+// adb push /opt/android-on-linux/readline-6.3/out/lib/libhistory.so.6.3  /system/lib64/libhistory.so.6
+
+// adb shell chown -R root.root /system/xbin/quagga/
+// adb shell chmod -R 755 /system/xbin/quagga/
+
+
+[root@localhost quagga]# 
+cp out/etc/zebra.conf.sample out/etc/zebra.conf
+cp out/etc/ospf6d.conf.sample out/etc/ospf6d.conf
+
+gedit out/etc/ospf6d.conf
+-----------------------------------------
+interface eth0
+ ipv6 ospf6 priority 1
+ ipv6 ospf6 transmit-delay 1
+ ipv6 ospf6 ifmtu 1500
+ ipv6 ospf6 cost 1
+ ipv6 ospf6 hello-interval 2
+ ipv6 ospf6 dead-interval 6
+ ipv6 ospf6 retransmit-interval 5
+ ipv6 ospf6 network manet-designated-router
+ ipv6 ospf6 ackinterval 1800
+ ipv6 ospf6 backupwaitinterval 2000
+ ipv6 ospf6 twohoprefresh 3
+ ipv6 ospf6 hellorepeatcount 3
+ ipv6 ospf6 adjacencyconnectivity biconnected
+ ipv6 ospf6 lsafullness mdrfulllsa
+ ipv6 ospf6 flood-delay 100
+!
+ 
+router ospf6
+ instance-id 65
+! router-id 10.1.0.1 (Note: Each node is not the same) (line 21)
+ interface eth0 area 0.0.0.0
+ protocol-traffic-class 184
+ redistribute ospf
+ redistribute connected
+!
+-----------------------------------------
+
+adb push out/etc/zebra.conf /system/xbin/quagga/etc/
+adb push out/etc/ospf6d.conf /system/xbin/quagga/etc/
+
+
+// adb shell mkdir -p /opt/android-on-linux/quagga/out/etc
+// adb shell cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
+// adb shell cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
+
+-----------------------------------------
+
+root@x86_64:/ # 
+
+mount -o remount,rw /system
+mount -o remount,rw /
+
+mkdir -p /opt/android-on-linux/quagga/out/etc
+cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
+cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
+
+/system/xbin/quagga/sbin/zebra -d
+/system/xbin/quagga/sbin/ospf6d -d
+ps
+--------------------
+root      3135  1     8112   732            0 7fa5ddac075a S /system/xbin/quagga/zebra
+root      3138  1     8704   2344           0 7f8ae094a75a S /system/xbin/quagga/ospf6d
+root      3139  3014  5800   1844           0 7f3fd2f7a457 R ps
+--------------------
+
+//  /system/xbin/quagga/sbin/zebra -d -f /etc/zebra.conf
+//  /system/xbin/quagga/sbin/ospf6d -d -f /etc/ospf6d.conf
+
+-----------------------------------------
+
+adb connect 192.168.58.102:5555
+adb devices
+adb -s 192.168.58.102:5555 root
+adb -s 192.168.58.102:5555 shell
+
+adb disconnect 192.168.58.102:5555
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+adb connect 192.168.56.3 && adb -s 192.168.56.3 root
+adb connect 192.168.56.4 && adb -s 192.168.56.4 root
+adb connect 192.168.56.5 && adb -s 192.168.56.5 root
+adb connect 192.168.56.6 && adb -s 192.168.56.6 root
+adb connect 192.168.56.7 && adb -s 192.168.56.7 root
+
+adb -s 127.0.0.1 shell mkdir -p /system/xbin/quagga/etc
+
+adb -s 127.0.0.1 shell mount -o remount,rw /system
+adb -s 127.0.0.1 shell mount -o remount,rw /
+
+adb -s 127.0.0.1 push out/sbin/ /system/xbin/quagga/
+adb -s 127.0.0.1 push out/lib/libzebra.so /system/lib64/
+adb -s 127.0.0.1 push out/lib/libospf.so /system/lib64/
+adb -s 127.0.0.1 push out/lib/libospfapiclient.so /system/lib64/
+
+adb -s 127.0.0.1 push /opt/android-on-linux/android-ndk-r12/sources/cxx-stl/stlport/libs/x86_64/libstlport_shared.so /system/lib64/
+adb -s 127.0.0.1 push /opt/android-on-linux/android-ndk-r12/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so /system/lib64/
+
+// adb -s 127.0.0.1 push /opt/android-on-linux/readline-6.3/out/lib/libreadline.so.6.3 /system/lib64/libreadline.so.6
+// adb -s 127.0.0.1 push /opt/android-on-linux/readline-6.3/out/lib/libhistory.so.6.3  /system/lib64/libhistory.so.6
+
+root@x86_64:/ # 
+
+mount -o remount,rw /system
+mount -o remount,rw /
+
+mkdir -p /opt/android-on-linux/quagga/out/etc
+cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
+cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
+
+/system/xbin/quagga/sbin/zebra -d
+/system/xbin/quagga/sbin/ospf6d -d
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+----------------------------------------------------------------------
+the following commands should be included in seem-tools-CLI-semi-auto.sh
+----------------------------------------------------------------------
+adb shell mkdir -p /opt/android-on-linux/quagga/out/etc
+adb shell cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
+adb shell cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
+adb shell /system/xbin/quagga/sbin/zebra -d
+adb shell /system/xbin/quagga/sbin/ospf6d -d
+----------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+So far, cross compile successfully quagga-0.99.21mr2.2 for android-x86_64 in Fedora23
+------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
 
 
 
@@ -193,6 +552,8 @@ make -j4
 -----------------------------------------------------
 
 
+
+
 ----------------------------------------------------------------------
 android-ndk-r10e + android-21 + x86-4.8 (dynamically linked), failed
 ----------------------------------------------------------------------
@@ -219,7 +580,7 @@ make -j4
 make install
 
 ----------------------------------------------------------------------
-android-ndk-r19d + android-19 + x86-4.8 (dynamically linked), failed
+android-ndk-r10d + android-19 + x86-4.8 (dynamically linked), failed
 ----------------------------------------------------------------------
 
 make clean
@@ -242,6 +603,8 @@ export AR="$CPATH/i686-linux-android-ar"
 make -j4
 
 make install
+
+
 
 
 
@@ -270,18 +633,6 @@ can also find it in android-x86-6.0-rc1
 that is:
 /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/android-x86/android-x86-6.0-rc1/bootable/newinstaller/initrd/lib/libcrypt.so.1
 ---------------------------------------------
-++++++++++++++++++++++
-
-[root@localhost quagga]# gedit configure
-
-  /* LIBS="-lcrypt $LIBS" */
-  LIBS=" $LIBS"
-
-  /* LIBS="-lm $LIBS" */
-  LIBS=" $LIBS"
-  /* LIBM="-lm" */
-  LIBM=""
-
 ++++++++++++++++++++++
 the following, no use
 ++++++++++++++++++++++
@@ -324,46 +675,6 @@ sed -i "s/\"safe_strerror(sockerr)\"/safe_strerror(sockerr)/g" `grep "\"safe_str
 
 ++++++++++++++++++++++
 
-root@x86:/ # /system/xbin/quagga/zebra                                         
-CANNOT LINK EXECUTABLE: cannot locate symbol "__errno_location" referenced by "/system/lib/libcrypt.so.1"...
-1|root@x86:/ # 
-
------------------
-CANNOT LINK EXECUTABLE: cannot locate symbol
-
-If you get an error like CANNOT LINK EXECUTABLE: cannot locate symbol "signal" referenced by "gatord" on android, please ensure you are using the correct version of the Android ndk: ndk32 for 32-bit targets and ndk64 for 64-bit targets.
-
-++++++++++++++++++++++
-[root@localhost quagga]# gedit lib/crypt.c lib/crypt.h
-
-http://blog.csdn.net/ztguang/article/details/51763624
-
-++++++++++++++++++++++
-
-[root@localhost quagga]# gedit lib/command.c
-
-#include <crypt.h>
-
-[root@localhost quagga]# gedit lib/Makefile.am                 // add crypt.c & crypt.h
-
-libzebra_la_SOURCES = \
-	network.c pid_output.c getopt.c getopt1.c daemon.c \
-	checksum.c vector.c linklist.c vty.c built.c command.c crypt.c \
-
-pkginclude_HEADERS = \
-	buffer.h checksum.h command.h crypt.h filter.h getopt.h hash.h \
-
-++++++++++++++++++++++
-/opt/android-on-linux/android-ndk-r12/toolchains/x86-4.9/prebuilt/linux-x86_64/bin/../lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld: error: ../lib/.libs/libzebra.a(thread.o): multiple definition of 'thread_timer_remain_second'
-/opt/android-on-linux/android-ndk-r12/toolchains/x86-4.9/prebuilt/linux-x86_64/bin/../lib/gcc/i686-linux-android/4.9.x/../../../../i686-linux-android/bin/ld: xpimd-zebra_thread.o: previous definition here
--------
-
-[root@localhost quagga]# gedit ./xpimd/zebra_thread.hh ./xpimd/zebra_thread.cc
-
-funcname_  -->  zt_
-thread_  -->  zt_thread_
-
-++++++++++++++++++++++
 
 [root@localhost quagga]# 
 
@@ -398,13 +709,13 @@ GCC: -static and -fpie are incompatible for x86
 --------------------------
 Android 5+ —— error: only position independent executables (PIE) are supported.
 
-CFLAGS += -fPIE
+CFLAGS += -fPIC -fpic
 LDFLAGS += -fPIE -fpie
 
 such as:
-export CFLAGS="-I/softdev/arm-libs/include -fPIE"
-export CPPLAGS="$CPPFLAGS -fPIE"
-export CXXLAGS="$CXXFLAGS -fPIE"
+export CFLAGS="-I/softdev/arm-libs/include -fPIC -fpic"
+export CPPLAGS="$CPPFLAGS -fPIC -fpic"
+export CXXLAGS="$CXXFLAGS -fPIC -fpic"
 export LDFLAGS="-L/softdev/arm-libs/lib -static -fPIE -fpie"
 --------------------------
 
@@ -683,7 +994,8 @@ adb shell /system/xbin/quagga/sbin/ospf6d -d
 ----------------------------------------------------------------------
 (OK)(OK)(OK) (x86_64) —— cross_compile_readline_for_android-x86_64-6.0.txt
 ----------------------------------------------------------------------
-
+if ./configure --enable-vtysh, then use, otherwise, no use
+----------------------------------------------------------------------
 cross_compile_readline_for_android-x86_64-6.0.txt
 
 download readline: ftp://ftp.cwru.edu/pub/bash/readline-6.3.tar.gz
@@ -759,290 +1071,3 @@ lrwxrwxrwx. 1 root root   18 7月   5 14:34 libreadline.so.6 -> libreadline.so.6
 /opt/android-on-linux/readline-6.3/out/lib/libreadline.so
 ----------------------------------------------------------------------
 
-
-----------------------------------------------------------------------
-(OK)(OK)(OK) (x86_64) —— android-x86_64-6.0-rc1 (API 23)
-----------------------------------------------------------------------
-
-[root@localhost quagga]# pwd
-/opt/android-on-linux/quagga
-[root@localhost quagga]# 
-
-// cp -a /opt/android-on-linux/readline-6.3/out/lib/* /opt/android-on-linux/android-ndk-r12/platforms/android-23/arch-x86_64/usr/lib/
-
-// mkdir /opt/android-on-linux/android-ndk-r12/platforms/android-23/arch-x86_64/usr/include/readline/
-// cp -r /opt/android-on-linux/readline-6.3/out/include/readline/ /opt/android-on-linux/android-ndk-r12/platforms/android-23/arch-x86_64/usr/include/
-
-------------------------------
-
-./bootstrap.sh 
-
-
-make clean
-
-export NDK_ROOT="/opt/android-on-linux/android-ndk-r12"
-export SYSROOT="$NDK_ROOT/platforms/android-23/arch-x86_64"
-export CFLAGS="-g --pipe --sysroot=$SYSROOT -fPIC -fpic -I$NDK_ROOT/toolchains/x86_64-4.9/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x/include-fixed/ -I$NDK_ROOT/platforms/android-23/arch-x86_64/usr/include -I$NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include/ -I$NDK_ROOT/sources/android/support/include/"
-export CPPFLAGS="$CFLAGS"
-export CXXFLAGS="$CFLAGS"
-export LDFLAGS="--sysroot=$SYSROOT -fPIE -fpie -L$NDK_ROOT/platforms/android-23/arch-x86_64/usr/lib/ -L$NDK_ROOT/sources/cxx-stl/stlport/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/x86_64 -L$NDK_ROOT/sources/cxx-stl/gnu-libstdc++/4.9/libs/x86_64 -lstlport_shared -lm -lc++ -lc"
-export CPATH="/opt/android-on-linux/android-ndk-r12/toolchains/x86_64-4.9/prebuilt/linux-x86_64/bin"
-export CPP="$CPATH/x86_64-linux-android-cpp"
-export CXX="$CPATH/x86_64-linux-android-g++"
-export CC="$CPATH/x86_64-linux-android-gcc"
-export LD="$CPATH/x86_64-linux-android-ld"
-export AR="$CPATH/x86_64-linux-android-ar"
-export STRIP="$CPATH/x86_64-linux-android-strip"
-export OBJDUMP="$CPATH/x86_64-linux-android-objdump"
-export RANLIB="$CPATH/x86_64-linux-android-ranlib"
-
-./configure --host=x86_64-android-linux \
- --disable-bgpd \
- --disable-ripd \
- --disable-ripngd \
- --disable-isisd \
- --enable-ipv6 \
- --enable-vtysh \
- --enable-user=root \
- --enable-group=root \
- --enable-vty-group=root \
- --prefix=/opt/android-on-linux/quagga/out \
- --exec-prefix=/opt/android-on-linux/quagga/out
-
-make -j4
-
-make install
-
-------------------
-
-./configure --host=x86_64-android-linux \
- --enable-user=root \
- --enable-group=root \
- --prefix=/opt/android-on-linux/quagga/out \
- --exec-prefix=/opt/android-on-linux/quagga/out
-
-
-make -j4
-
-//make -e -j4
-
-make install
-
-$STRIP /opt/android-on-linux/quagga/out/sbin/*
-
-ll -h out/sbin
-ll -h out/lib
-ll -h out/etc
-
-----------------------------------------
-
-// ./configure --enable-user=root --enable-group=root --host=x86_64-android-linux --exec-prefix=/opt/android-on-linux/quagga/out --prefix=/opt/android-on-linux/quagga/out
-
-
-./configure --host=x86_64-android-linux \
- --disable-bgpd \
- --disable-ripd \
- --disable-ripngd \
- --disable-isisd \
- --enable-ipv6 \
- --enable-vtysh \
- --enable-user=root \
- --enable-group=root \
- --enable-vty-group=root \
- --prefix=/opt/android-on-linux/quagga/out \
- --exec-prefix=/opt/android-on-linux/quagga/out
-
-----------------------------------------
-
-[root@localhost quagga]# ll -h out/sbin/
--rwxr-xr-x. 1 root root 902K 7月   1 08:27 babeld
--rwxr-xr-x. 1 root root 1.8M 7月   1 08:27 ospf6d
--rwxr-xr-x. 1 root root 1.9M 7月   1 08:27 ospfclient
--rwxr-xr-x. 1 root root 1.9M 7月   1 08:27 ospfd
--rwxr-xr-x. 1 root root 489K 7月   1 08:27 watchquagga
--rwxr-xr-x. 1 root root  21M 7月   1 08:27 xpimd
--rwxr-xr-x. 1 root root 1.1M 7月   1 08:27 zebra
-
-[root@localhost quagga]# $STRIP /opt/android-on-linux/quagga/out/sbin/*
-
-[root@localhost quagga]# ll -h out/sbin/
--rwxr-xr-x. 1 root root 457K 7月   1 08:29 babeld
--rwxr-xr-x. 1 root root 896K 7月   1 08:29 ospf6d
--rwxr-xr-x. 1 root root 967K 7月   1 08:29 ospfclient
--rwxr-xr-x. 1 root root 983K 7月   1 08:29 ospfd
--rwxr-xr-x. 1 root root 261K 7月   1 08:29 watchquagga
--rwxr-xr-x. 1 root root 3.2M 7月   1 08:29 xpimd
--rwxr-xr-x. 1 root root 555K 7月   1 08:29 zebra
-[root@localhost quagga]# 
-
-----------------------------------------
-root@x86:/ # 
-mount -o remount,rw /system
-mount -o remount,rw /
-
-----------------------------------------
-
-adb connect 192.168.56.3 && adb -s 192.168.56.3 root
-adb connect 192.168.56.4 && adb -s 192.168.56.4 root
-adb connect 192.168.56.5 && adb -s 192.168.56.5 root
-adb connect 192.168.56.6 && adb -s 192.168.56.6 root
-adb connect 192.168.56.7 && adb -s 192.168.56.7 root
-
-sleep 1
-adb connect 192.168.56.12 && adb -s 192.168.56.12 root
-adb disconnect 192.168.56.11
-
-----------------------------------------
-
-adb connect 192.168.56.3 && adb -s 192.168.56.3 root
-
-// adb shell ls /system/xbin/quagga
-
-adb shell mkdir -p /system/xbin/quagga/etc
-
-adb shell mount -o remount,rw /system
-adb shell mount -o remount,rw /
-
-adb push out/sbin/ /system/xbin/quagga/
-adb push out/lib/libzebra.so /system/lib64/
-adb push out/lib/libospf.so /system/lib64/
-adb push out/lib/libospfapiclient.so /system/lib64/
-
-adb push /opt/android-on-linux/android-ndk-r12/sources/cxx-stl/stlport/libs/x86_64/libstlport_shared.so /system/lib64/
-adb push /opt/android-on-linux/android-ndk-r12/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so /system/lib64/
-
-adb push /opt/android-on-linux/readline-6.3/out/lib/libreadline.so.6.3 /system/lib64/libreadline.so.6
-adb push /opt/android-on-linux/readline-6.3/out/lib/libhistory.so.6.3  /system/lib64/libhistory.so.6
-
-// adb shell chown -R root.root /system/xbin/quagga/
-// adb shell chmod -R 755 /system/xbin/quagga/
-
-
-[root@localhost quagga]# 
-cp out/etc/zebra.conf.sample out/etc/zebra.conf
-cp out/etc/ospf6d.conf.sample out/etc/ospf6d.conf
-gedit out/etc/ospf6d.conf
------------------------------------------
-interface eth0
- ipv6 ospf6 priority 1
- ipv6 ospf6 transmit-delay 1
- ipv6 ospf6 ifmtu 1500
- ipv6 ospf6 cost 1
- ipv6 ospf6 hello-interval 2
- ipv6 ospf6 dead-interval 6
- ipv6 ospf6 retransmit-interval 5
- ipv6 ospf6 network manet-designated-router
- ipv6 ospf6 ackinterval 1800
- ipv6 ospf6 backupwaitinterval 2000
- ipv6 ospf6 twohoprefresh 3
- ipv6 ospf6 hellorepeatcount 3
- ipv6 ospf6 adjacencyconnectivity biconnected
- ipv6 ospf6 lsafullness mdrfulllsa
- ipv6 ospf6 flood-delay 100
-!
- 
-router ospf6
- instance-id 65
-! router-id 10.1.0.1 (Note: Each node is not the same) (line 21)
- interface eth0 area 0.0.0.0
- protocol-traffic-class 184
- redistribute ospf
- redistribute connected
-!
------------------------------------------
-
-adb push out/etc/zebra.conf /system/xbin/quagga/etc/
-adb push out/etc/ospf6d.conf /system/xbin/quagga/etc/
-
-
-// adb shell mkdir -p /opt/android-on-linux/quagga/out/etc
-// adb shell cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
-// adb shell cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
-
------------------------------------------
-
-root@x86_64:/ # 
-
-mount -o remount,rw /system
-mount -o remount,rw /
-
-mkdir -p /opt/android-on-linux/quagga/out/etc
-cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
-cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
-
-/system/xbin/quagga/sbin/zebra -d
-/system/xbin/quagga/sbin/ospf6d -d
-ps
---------------------
-root      3135  1     8112   732            0 7fa5ddac075a S /system/xbin/quagga/zebra
-root      3138  1     8704   2344           0 7f8ae094a75a S /system/xbin/quagga/ospf6d
-root      3139  3014  5800   1844           0 7f3fd2f7a457 R ps
---------------------
-
-//  /system/xbin/quagga/sbin/zebra -d -f /etc/zebra.conf
-//  /system/xbin/quagga/sbin/ospf6d -d -f /etc/ospf6d.conf
-
------------------------------------------
-
-adb connect 192.168.58.102:5555
-adb devices
-adb -s 192.168.58.102:5555 root
-adb -s 192.168.58.102:5555 shell
-
-adb disconnect 192.168.58.102:5555
-
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-adb connect 192.168.56.3 && adb -s 192.168.56.3 root
-adb connect 192.168.56.4 && adb -s 192.168.56.4 root
-adb connect 192.168.56.5 && adb -s 192.168.56.5 root
-adb connect 192.168.56.6 && adb -s 192.168.56.6 root
-adb connect 192.168.56.7 && adb -s 192.168.56.7 root
-
-adb -s 127.0.0.1 shell mkdir -p /system/xbin/quagga/etc
-
-adb -s 127.0.0.1 shell mount -o remount,rw /system
-adb -s 127.0.0.1 shell mount -o remount,rw /
-
-adb -s 127.0.0.1 push out/sbin/ /system/xbin/quagga/
-adb -s 127.0.0.1 push out/lib/libzebra.so /system/lib64/
-adb -s 127.0.0.1 push out/lib/libospf.so /system/lib64/
-adb -s 127.0.0.1 push out/lib/libospfapiclient.so /system/lib64/
-
-adb -s 127.0.0.1 push /opt/android-on-linux/android-ndk-r12/sources/cxx-stl/stlport/libs/x86_64/libstlport_shared.so /system/lib64/
-adb -s 127.0.0.1 push /opt/android-on-linux/android-ndk-r12/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so /system/lib64/
-
-adb -s 127.0.0.1 push /opt/android-on-linux/readline-6.3/out/lib/libreadline.so.6.3 /system/lib64/libreadline.so.6
-adb -s 127.0.0.1 push /opt/android-on-linux/readline-6.3/out/lib/libhistory.so.6.3  /system/lib64/libhistory.so.6
-
-root@x86_64:/ # 
-
-mount -o remount,rw /system
-mount -o remount,rw /
-
-mkdir -p /opt/android-on-linux/quagga/out/etc
-cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
-cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
-
-/system/xbin/quagga/sbin/zebra -d
-/system/xbin/quagga/sbin/ospf6d -d
-
-<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
-----------------------------------------------------------------------
-the following commands should be included in seem-tools-CLI-semi-auto.sh
-----------------------------------------------------------------------
-adb shell mkdir -p /opt/android-on-linux/quagga/out/etc
-adb shell cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/
-adb shell cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
-adb shell /system/xbin/quagga/sbin/zebra -d
-adb shell /system/xbin/quagga/sbin/ospf6d -d
-----------------------------------------------------------------------
-
-------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------
-So far, cross compile successfully quagga-0.99.21mr2.2 for android-x86_64 in Fedora23
-------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------
