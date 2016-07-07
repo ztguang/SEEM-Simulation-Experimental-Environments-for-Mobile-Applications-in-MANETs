@@ -88,6 +88,8 @@ copy_vdi(){
 # create_init() 
 # create init_in_android-x86_64.sh
 # receive one parameters
+#
+# adb push ${init_name} /system/xbin/quagga/sbin/init_in_android-x86_64.sh
 #------------------------------------------------------------------------------------------
 create_init(){
 
@@ -111,6 +113,12 @@ create_init(){
 	echo "mkdir -p /opt/android-on-linux/quagga/out/etc" >> $init_name
 	echo "cp /system/xbin/quagga/etc/zebra.conf /opt/android-on-linux/quagga/out/etc/" >> $init_name
 	echo "cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/" >> $init_name
+
+	echo "sed -i '21a \ router-id 10.1.0.$1' /opt/android-on-linux/quagga/out/etc/ospf6d.conf" >> $init_name
+
+	echo "pkill zebra" >> $init_name
+	echo "pkill ospf6d" >> $init_name
+	echo "sleep 1" >> $init_name
 
 	echo "/system/xbin/quagga/sbin/zebra -d" >> $init_name
 	echo "/system/xbin/quagga/sbin/ospf6d -d" >> $init_name
