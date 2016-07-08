@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #------------------------------------------------------------------------------------------
-# This tool (seem-tools-CLI-semi-auto.sh) is released under GNU GPL v2,v3
+# This tool (seem-tools-CLI-semi-auto_4_vbox.sh) is released under GNU GPL v2,v3
 # Author: Tongguang Zhang
 # Date: 2016-06-18
 # 
@@ -313,7 +313,7 @@ destroy_android(){
 #------------------------------------------------------------------------------------------
 usage(){
 	cat <<-EOU
-    Usage: seem-tools-CLI-semi-auto.sh a b c
+    Usage: seem-tools-CLI-semi-auto_4_vbox.sh a b c
         a, the value is create or destroy
         b, the number of dockers to be created
         c, the number of androids to be created
@@ -323,18 +323,18 @@ usage(){
     For example:
         [root@localhost fedora23server-share]# pwd
             /opt/share-vm/fedora23server-share
-        [root@localhost fedora23server-share]# ls seem-tools-CLI-semi-auto.sh
-            seem-tools-CLI-semi-auto.sh
+        [root@localhost fedora23server-share]# ls seem-tools-CLI-semi-auto_4_vbox.sh
+            seem-tools-CLI-semi-auto_4_vbox.sh
         [root@localhost fedora23server-share]#
 
-        ./seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
-        ./seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+        ./seem-tools-CLI-semi-auto_4_vbox.sh create 25 0 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+        ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 25 0 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
 
-        ./seem-tools-CLI-semi-auto.sh create 0 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
-        ./seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+        ./seem-tools-CLI-semi-auto_4_vbox.sh create 0 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+        ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
 
-        ./seem-tools-CLI-semi-auto.sh create 20 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
-        ./seem-tools-CLI-semi-auto.sh destroy 20 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+        ./seem-tools-CLI-semi-auto_4_vbox.sh create 20 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+        ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 20 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
 
 	EOU
 }
@@ -408,7 +408,7 @@ start_ns3(){
 
 
 #------------------------------------------------------------------------------------------
-# ./seem-tools-CLI-semi-auto.sh para1 para2 para3 para4 para5 para6
+# ./seem-tools-CLI-semi-auto_4_vbox.sh para1 para2 para3 para4 para5 para6
 # para1 ($1), that is, the value is create or destroy
 # para2 ($2), that is, the number of dockers to be created
 # para3 ($3), that is, the number of androids to be created
@@ -420,14 +420,14 @@ start_ns3(){
 # [root@localhost virtualbox-os]# ls
 # android-x86_64-6.0-rc1-1.vdi  android-x86_64-6.0-rc1-2.vdi  android-x86_64-6.0-rc1-3.vdi  android-x86_64-6.0-rc1-4.vdi
 # 
-# ./seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
-# ./seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+# ./seem-tools-CLI-semi-auto_4_vbox.sh create 25 0 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+# ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 25 0 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
 # 
-# ./seem-tools-CLI-semi-auto.sh create 0 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
-# ./seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+# ./seem-tools-CLI-semi-auto_4_vbox.sh create 0 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+# ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
 # 
-# ./seem-tools-CLI-semi-auto.sh create 20 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
-# ./seem-tools-CLI-semi-auto.sh destroy 20 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+# ./seem-tools-CLI-semi-auto_4_vbox.sh create 20 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
+# ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 20 5 centos-manet android-x86_64-6.0-rc1-  PATH_of_*.vdi
 #------------------------------------------------------------------------------------------
 
 # docker search image_name
@@ -501,9 +501,9 @@ fi
 # [root@localhost fedora23server-share]# pwd
 # /opt/share-vm/fedora23server-share
 
-# ./seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+# ./seem-tools-CLI-semi-auto_4_vbox.sh create 25 0 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 
-# ./seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+# ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 25 0 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 
 # cd /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
 # ./waf --run scratch/seem-manet --vis
@@ -529,9 +529,9 @@ fi
 # [root@localhost fedora23server-share]# pwd
 # /opt/share-vm/fedora23server-share
 
-# ./seem-tools-CLI-semi-auto.sh create 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+# ./seem-tools-CLI-semi-auto_4_vbox.sh create 0 2 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 #
-# ./seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+# ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 #
 # cd /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
 # ./waf --run scratch/seem-manet --vis
@@ -587,4 +587,3 @@ fi
 #------------------------------------------------------------------------------------------
 # So far, All is OK
 #------------------------------------------------------------------------------------------
-
