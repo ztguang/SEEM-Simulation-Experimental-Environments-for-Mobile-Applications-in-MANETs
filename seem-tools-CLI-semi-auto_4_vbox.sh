@@ -529,7 +529,7 @@ fi
 # [root@localhost fedora23server-share]# pwd
 # /opt/share-vm/fedora23server-share
 
-# ./seem-tools-CLI-semi-auto_4_vbox.sh create 0 2 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+# ./seem-tools-CLI-semi-auto_4_vbox.sh create 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 #
 # ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 #
