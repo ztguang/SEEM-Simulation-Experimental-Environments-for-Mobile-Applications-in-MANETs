@@ -21,5 +21,6 @@ cp out/init_in_android-x86_64.sh /system/xbin/
 cp out/chrome_51.0.2704.81.apk /sdcard/Download/chrome_51.0.2704.81.apk
 
 chmod 755 /system/xbin/init_in_android-x86_64.sh
+chmod 755 /system/xbin/busybox-x86_64
 
 cd -
