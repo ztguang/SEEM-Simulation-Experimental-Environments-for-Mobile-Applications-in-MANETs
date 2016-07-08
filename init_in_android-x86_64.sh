@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/system/bin/sh
 # execute "sed -i '459a init_in_android-x86_64.sh' /system/etc/init.sh" in android-x86_64-6.0-rc1-0.vdi
 
 sleep 60
