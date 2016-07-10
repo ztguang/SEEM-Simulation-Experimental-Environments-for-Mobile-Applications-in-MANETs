@@ -1,7 +1,14 @@
 #!/system/bin/sh
 # execute "sed -i '459a init_in_android-x86_64.sh' /system/etc/init.sh" in android-x86_64-6.0-rc1-0.vdi
 
-sleep 60
+# waiting a while, push init_in_android-x86_64.sh in create_vm(),
+# due to that init_in_android-x86_64.sh may be exist in android-x86_64-6.0-rc1-[1-252].vdi
+# if create android-x86_64-6.0-rc1-[1-252].vdi from scratch create, then can delete the following line. 
+
+#sleep 60
+
+#Temporary solution, otherwise, the routing table will be modified by some android service
+stop netd
 
 ifconfig eth0 down
 
@@ -20,8 +27,14 @@ cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
 
 pkill zebra
 pkill ospf6d
-sleep 1
 
+echo 1 > /proc/sys/net/ipv4/ip_forward
+#iptables -F
+#iptables -F -t nat
+#iptables -F -t mangle
+svc wifi disable
+svc data disable
+
+sleep 1
 /system/xbin/quagga/sbin/zebra -d
 /system/xbin/quagga/sbin/ospf6d -d
-
