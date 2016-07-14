@@ -44,15 +44,17 @@ if [ "${ipadd}" != "112.26.2.5" ]; then
 	#sleep 1
 	/system/xbin/quagga/sbin/zebra -d
 	/system/xbin/quagga/sbin/ospf6d -d
+	stop netd
+	date >> /data/ztg_tmp/timestamp.txt
+	# then, mannually execute date >> /data/ztg_tmp/logcat1.txt && logcat >> /data/ztg_tmp/logcat1.txt && start netd && date >> /data/ztg_tmp/logcat2.txt && logcat >> /data/ztg_tmp/logcat2.txt && log.sh 2
 fi
 
 iptables -F
-iptables -X
+iptables -F -t nat
+iptables -F -t mangle
 
-#iptables -F -t nat
+#iptables -X
 #iptables -X -t nat
-
-#iptables -F -t mangle
 #iptables -X -t mangle
 
 #svc wifi disable
