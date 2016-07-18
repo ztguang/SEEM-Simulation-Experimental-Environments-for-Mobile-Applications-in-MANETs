@@ -90,6 +90,10 @@ clean:
 	//var ws = new WebSocket('ws://' + location.host + '/ws');
 	var ws = new WebSocket('ws://' + location.host + ':8000');
 
+[root@localhost mongoose-android-x86]# gedit examples/websocket_chat/websocket_chat.c 
+
+	//if (c == nc) continue; /* Don't send to the sender. */
+
 [root@localhost mongoose-android-x86]# cd examples/
 
 [root@localhost examples]# cd websocket_chat
@@ -117,5 +121,4 @@ http://localhost
 ------------------------------------
 All is OK
 ------------------------------------
-
 
