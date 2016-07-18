@@ -33,7 +33,7 @@ CC = $(CROSS_COMPILE)gcc
 NDK_LIB = $(SYSROOT)/usr/lib 
 
 #error: only position independent executables (PIE) are supported. (-fPIE)
-CFLAGS += -g -W -fPIE -Wall -I../.. -Wno-unused-function
+CFLAGS += -g -W -fPIE -Wall -I../.. -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)
 
 #CCFLAGS=-MMD -MP -fpic -ffunction-sections -funwind-tables -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__  -Wno-psabi -march=armv5te -mtune=xscale -msoft-float -mthumb -Os -fomit-frame-pointer -fno-strict-aliasing -finline-limit=64 -DANDROID -Wa,–noexecstack -g
 #CCFLAGS=
