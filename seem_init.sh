@@ -39,7 +39,7 @@ if [ ! -f /opt/init.txt ]; then
 	cp /system/xbin/quagga/etc/ospf6d.conf /opt/android-on-linux/quagga/out/etc/
 	sed -i '21a \ router-id 10.1.2.1' /opt/android-on-linux/quagga/out/etc/ospf6d.conf
 
-	#ifconfig eth0 112.26.2.1 netmask 255.255.0.0 up
+	ifconfig eth0 112.26.2.1 netmask 255.255.0.0 up
 
 	#pkill zebra &>/dev/null
 	#pkill ospf6d &>/dev/null
