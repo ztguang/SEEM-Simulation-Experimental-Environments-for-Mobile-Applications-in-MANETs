@@ -1,0 +1,181 @@
+
+
+./seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86-6.0-rc1-
+./seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86-6.0-rc1-
+
+./seem-tools-CLI-semi-auto.sh create 0 2 centos-manet android-x86-6.0-rc1-
+./seem-tools-CLI-semi-auto.sh destroy 0 2 centos-manet android-x86-6.0-rc1-
+
+./seem-tools-CLI-semi-auto.sh create 2 2 centos-manet android-x86-6.0-rc1-
+./seem-tools-CLI-semi-auto.sh destroy 2 2 centos-manet android-x86-6.0-rc1-
+
+docker attach docker_1
+----------------------------------------------------------------------------------------
+
+[root@localhost ns-3.25]# 
+
+./waf --run manet --vis
+
+./waf --run scratch/dsdv-manet --vis
+./waf --run "wifi-simple-adhoc-grid --help"
+./waf --run wifi-simple-adhoc-grid --vis
+
+----------------------------------------------------------------------------------------
+install docker-centos-quagga-ospf-mdr
+----------------------------------------------------------------------------------------
+docker search centos
+docker pull centos
+docker images
+
+docker run --privileged -it --rm centos /bin/bash
+
+[root@52ded645306a quagga]# cat /etc/redhat-release 
+CentOS Linux release 7.2.1511 (Core) 
+
+[root@c429860ee03f /]# 
+
+// dnf groupinstall "Development Tools"
+yum install nmap-ncat gcc gcc-c++ make autoconf automake ccache tar libtool readline-devel texinfo net-tools less which
+
+// docker run --privileged -it --rm --net='none' --name "docker_1" centos
+// docker run --privileged -it --rm --name batman -dp 8787:8787 centos
+
+----------------------------------------------------------------------------------------
+www.nrl.navy.mil —— OSPF MANET Designated Routers (OSPF-MDR) Implementation 
+----------------------------------------------------------------------------------------
+wget http://downloads.pf.itd.nrl.navy.mil/ospf-manet/nightly_snapshots/quagga-svnsnap.tgz
+(Host)
+iptables -I INPUT -p tcp --dport 12123 -j ACCEPT
+iptables -D INPUT -p tcp --dport 12123 -j ACCEPT
+nc -l 12123 < quagga-svnsnap.tgz
+(Docker)
+nc -n 172.17.0.1 12123 > quagga-svnsnap.tgz
+
+----------------------------------------------------------------------------------------
+root@cd2cc1b26be3:~/quagga# ls ..
+quagga  quagga-mtr  quagga-svnsnap.tgz
+root@cd2cc1b26be3:~/quagga# pwd
+/root/quagga
+
+// root@cd2cc1b26be3:~/quagga# ./update-autotools
+// root@cd2cc1b26be3:~/quagga# aclocal -I m4 --install
+
+root@cd2cc1b26be3:~/quagga# 
+
+./bootstrap.sh 
+./configure --enable-user=root --enable-group=root --enable-vtysh --with-cflags=-ggdb
+
+----------------------------------------------------------------------------------------
+Quagga configuration
+--------------------
+quagga version          : 0.99.21mr2.2-dev
+host operating system   : linux-gnu
+source code location    : .
+compiler                : gcc
+compiler flags          : -ggdb
+C++ compiler            : g++
+C++ compiler flags      : -ggdb
+make                    : make
+includes                :  
+linker flags            :  -lcrypt   -lrt   -ltermcap -lreadline -lm
+state file directory    : /var/run
+config file directory   : /usr/local/etc
+example directory       : /usr/local/etc
+user to run as		: root
+group to run as		: root
+group for vty sockets	: 
+config file mask        : 0600
+log file mask           : 0600
+generic netlink         : no
+  (support for RFC 4938 link metrics)
+----------------------------------------------------------------------------------------
+make
+make install
+
+cd /usr/local/etc/
+cp ospf6d.conf.sample ospf6d.conf
+cp zebra.conf.sample zebra.conf
+
+----------------------------------------------------------------------------------------
+vi ospf6d.conf
+----------------------------------------------------------------------------------------
+interface eth0
+ ipv6 ospf6 priority 1
+ ipv6 ospf6 transmit-delay 1
+ ipv6 ospf6 ifmtu 1500
+ ipv6 ospf6 cost 1
+ ipv6 ospf6 hello-interval 2
+ ipv6 ospf6 dead-interval 6
+ ipv6 ospf6 retransmit-interval 5
+ ipv6 ospf6 network manet-designated-router
+ ipv6 ospf6 ackinterval 1800
+ ipv6 ospf6 backupwaitinterval 2000
+ ipv6 ospf6 twohoprefresh 3
+ ipv6 ospf6 hellorepeatcount 3
+ ipv6 ospf6 adjacencyconnectivity biconnected
+ ipv6 ospf6 lsafullness mdrfulllsa
+ ipv6 ospf6 flood-delay 100
+!
+ 
+router ospf6
+ instance-id 65
+! router-id 10.1.0.1 (Note: Each node is not the same) (line 21)
+ interface eth0 area 0.0.0.0
+ protocol-traffic-class 184
+ redistribute ospf
+ redistribute connected
+!
+----------------------------------------------------------------------------------------
+
+zebra -d
+ospf6d -d
+vtysh
+> show ipv6 ospf6 route
+> show ip route
+> show ipv6 route
+> exit
+
+route add 123.123.123.123 reject
+route -n
+route del 123.123.123.123 reject
+
+----------------------------------------------------------------------------------------
+the following commands are not used, 
+the function is implemented by commands (docker exec) in seem-tools-CLI-semi-auto.sh
+----------------------------------------------------------------------------------------
+vi /root/manet.sh
+---------------
+#!/bin/sh
+/usr/bin/sleep 10
+/usr/local/sbin/zebra -d &>/dev/null
+/usr/local/sbin/ospf6d -d &>/dev/null
+---------------
+
+chmod +x /root/manet.sh
+echo /root/manet.sh >> /etc/bashrc
+
+----------------------------------------------------------------------------------------
+
+// Saving the Image
+docker ps -a
+docker commit 6e72ccd59f18 centos-manet
+
+----------------------------------------------------------------------------------------
+
+docker run --privileged -it --rm centos-manet /bin/bash
+docker run --privileged -it --rm --name "docker_1" centos-manet /bin/bash
+docker run --privileged -it --rm --net='none' --name "docker_1" centos-manet /bin/bash
+
+-------------------------------------------------
+docker run --privileged -it -d --name "docker_1" centos-manet
+docker ps -a
+docker attach docker_1
+docker stop docker_1
+docker rm docker_1
+-------------------------------------------------
+
+docker ps
+docker rmi 2c067614b89f
+----------------------------------------------------------------------------------------
+
+

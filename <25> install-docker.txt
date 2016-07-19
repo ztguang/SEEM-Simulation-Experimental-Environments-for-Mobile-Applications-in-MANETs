@@ -1,0 +1,197 @@
++++++++++++++++++++++++++ install docker etc.
+
+# Fedora 23
+
+dnf install openvswitch docker-io xterm wireshark-gnome ImageMagick tcl tcllib tk kernel-modules-extra util-linux
+
+----------------------------------------------------
+install docker 1.9.1
+----------------------------------------------------
+
+//docker 1.9.1
+//dnf update --exclude=kernel*
+//dnf update
+
+dnf remove docker
+dnf install docker-io
+
+rm /var/lib/docker/ -rf
+ls /var/lib/docker/
+
+systemctl start docker
+systemctl stop docker
+systemctl status docker
+systemctl enable docker
+
+docker search busybox
+docker pull busybox
+docker images
+docker tag 307ac631f1b5 docker.io/busybox:core
+docker rmi docker.io/busybox:core
+
+docker run --rm -it busybox /bin/sh
+
+dnf remove docker-io
+rm /var/lib/docker/ -rf
+----------------------------------------------------
+
+So far, OK
+
+----------------------------------------------------
+https://docs.docker.com/engine/installation/linux/fedora/
+
+install docker 1.11.1
+----------------------------------------------------
+tee /etc/yum.repos.d/docker.repo <<-'EOF'
+[dockerrepo]
+name=Docker Repository
+baseurl=https://yum.dockerproject.org/repo/main/fedora/$releasever/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum.dockerproject.org/gpg
+EOF
+----------------------------------------------------
+//docker 1.11.1
+//dnf update
+
+dnf update --exclude=kernel*
+init 6
+
+dnf update
+dnf install docker-engine
+
+dnf remove docker-engine
+
+----------------------------------------------------
+
+dnf install docker-engine-1.10.3 docker-engine-selinux-1.10.3
+
+---------------------------------------------------- the two following lines, not use 
+
+    # echo 'DOCKER_STORAGE_OPTIONS="-s overlay"' >> /etc/sysconfig/docker-storage
+    # systemctl restart docker
+
+----------------------------------------------------
+ls /etc/systemd/system
+ls /usr/lib/systemd/system
+ls /usr/lib/systemd/system/docker.service
+
+rm /var/lib/docker/overlay/ -rf
+rm /var/lib/docker/ -rf
+----------------------------------------------------
+
+[root@localhost 桌面]# gedit /usr/lib/systemd/system/docker.service 
+
+# ExecStart=/usr/bin/docker daemon -H fd://
+ExecStart=/usr/bin/docker daemon -s overlay
+
+
+systemctl start docker.service
+systemctl restart docker.service
+systemctl stop docker.service
+systemctl status docker.service
+
+systemctl daemon-reload
+----------------------------------------------------
+
+Work around for me right now is to downgrade to 1.6.2.
+
+# yum downgrade docker-1.6.2-14.el7.centos
+# systemctl restart docker
+
+----------------------------------------------------
+docker info
+docker version
+----------------------------------------------------
+
+[root@localhost 桌面]# 
+docker search busybox
+docker pull busybox
+docker images
+docker tag 47bcc53f74dc busybox:core
+docker rmi busybox:core
+
+docker run --rm -it busybox /bin/sh
+
+[root@localhost 桌面]# docker logs $(docker ps -q) | tail -20
+
+[root@n2 n2.conf]# 
+docker daemon -s overlay &
+docker run --rm -it busybox /bin/sh
+
+rm /var/lib/docker/ -rf
+----------------------------------------------------
+
+So far, OK
+
+----------------------------------------------------
+
+
+docker run hello-world
+
+systemctl status systemd-udevd.service -l
+
+//List Containers
+docker ps
+docker ps -a
+docker ps -l
+//Attach to a Specific Container
+docker attach 9c09acd48a25
+//View Logs for a Docker Container 2c9d5e12800e
+docker logs 2c9d5e12800e
+
+docker images
+docker tag 778a53015523 centos:core
+
+docker search centos
+docker pull centos
+
+docker images
+docker rmi 778a53015523
+docker tag 40467a0b3d66 centos:core
+docker tag 44776f55294a ubuntu:core
+
+docker run hello-world
+
+docker run centos echo "hello world!"
+docker run ubuntu echo "hello world!"
+docker run ubuntu:core echo "hello world!"
+
+docker run -it busybox /bin/sh
+docker run --rm -it busybox /bin/sh
+
+docker tag 307ac631f1b5 docker.io/busybox:core
+docker run --rm -it busybox:core /bin/sh
+
+docker run -v /tmp/dockerdev:/dev -it --rm centos:core bash
+
+docker run -d --net host --name coreDock busybox /bin/sh
+
+docker ps -a
+brctl show
+ldd $(which docker)
+
+ps aux |grep docker
+
+----------------------------------------------------
+----------
+如果出现如下问题：
+# systemctl start docker
+Job for docker.service failed. See 'systemctl status docker.service' and 'journalctl -xn' for details.
+解决方法：
+# rm /var/lib/docker -rf
+# systemctl daemon-reload
+# systemctl start docker
+--------------------------------------------------------------------------------------------------------------
+http://stackoverflow.com/questions/20994863/how-to-use-docker-or-linux-containers-for-network-emulation
+--------------------------------------------------------------------------------------------------------------
+    CORE Network Emulator does have a Docker Service that I contributed and wrote an article about. The initial version that is in 4.8 is mostly broken but I have fixed and improved it. A pull request is on GitHub.  
+  
+    The service allows you to tag Docker Images with 'core' and then they appear as an option in the services settings. You must select the Docker image which starts the docker service in the container. You then select the container or containers that you want to run in that node. It scales quite well and I have had over 2000 nodes on my 16Gb machine.  
+  
+    You mentioned OVS as well. This is not yet built in to CORE but can be used manually. I just answered a question on the CORE mailing list on this. It gives a brief overview of switching out a standard CORE switch(bridge) with OVS. Text reproduced below if it is useful:  
+--------------------------------------------------------------------------------------------------------------
+
+
+
+

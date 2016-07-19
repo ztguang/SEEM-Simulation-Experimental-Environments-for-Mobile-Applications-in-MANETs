@@ -1,0 +1,677 @@
+
+-----------------------------------------------------------------------------------------------------
+https://www.nsnam.org/wiki/Installation
+Prerequisites
+-----------------------------------------------------------------------------------------------------
+dnf install gcc gcc-c++ python python-devel mercurial bzr gsl gsl-devel gtk2 gtk2-devel gdb valgrind doxygen graphviz ImageMagick python-sphinx dia texlive texlive-latex
+
+dnf install flex bison tcpdump sqlite sqlite-devel libxml2 libxml2-devel uncrustify openmpi openmpi-devel boost-devel goocanvas-devel graphviz graphviz-devel 
+
+dnf install python-setuptools-devel
+dnf install easy_install
+dnf install pygraphviz
+dnf install python-kiwi pygoocanvas cmake glibc-devel.i686 glibc-devel.x86_64 
+
+dnf install p7zip*
+
+dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+dnf install unrar
+
+-----------------------------------------------------------------------------------------------------
+[root@localhost bake]# pwd
+/opt/tools/network_simulators/ns3/ns-allinone-3.25/bake
+
+[root@localhost bake]# ls
+bake  bakeconf.xml  bakefile.xml  bake.py  doc  examples  generate-binary.py  source  test  TODO
+[root@localhost bake]# 
+
+[root@localhost bake]# ./bake.py check
+ > Python - OK
+ > GNU C++ compiler - OK
+ > Mercurial - OK
+ > CVS - OK
+ > GIT - OK
+ > Bazaar - OK
+ > Tar tool - OK
+ > Unzip tool - OK
+ > Unrar tool - OK
+ > 7z  data compression utility - OK
+ > XZ data compression utility - OK
+ > Make - OK
+ > cMake - OK
+ > patch tool - OK
+ > autoreconf tool - OK
+
+
+ > Path searched for tools: /usr/lib64/qt-3.3/bin /usr/lib64/ccache /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /root/bin bin
+
+[root@localhost bake]# ./bake.py download
+ >> Downloading gccxml-ns3 (target directory:gccxml) - OK
+ >> Searching for system dependency qt4 - OK
+ >> Searching for system dependency g++ - OK
+ >> Searching for system dependency setuptools - OK
+ >> Searching for system dependency pygoocanvas - OK
+ >> Searching for system dependency pygraphviz - OK
+ >> Searching for system dependency python-dev - OK
+ >> Downloading pygccxml - OK
+ >> Downloading netanim-3.107 - OK
+ >> Downloading pybindgen-0.17.0.post49+ng0e4e3bc (target directory:pybindgen) - OK
+ >> Downloading ns-3.25 - OK
+[root@localhost bake]# 
+
+
+
+-----------------------------------------------------------------------------------------------------
+//Python API Scanning Support   : not enabled (Missing 'pygccxml' Python module)
+pip install pygccxml
+
+//PyViz visualizer              : not enabled (Missing python modules: pygraphviz)
+dnf install python-devel gnome-python2 gnome-python2-gnomedesktop gnome-python2-rsvg graphviz-python pygoocanvas python-kiwi
+dnf install graphviz-devel
+easy_install pygraphviz
+
+-----------------------------------------------------------------------------------------------------
+Using a Tarball
+-----------------------------------------------------------------------------------------------------
+
+download ns-allinone-3.25.tar.bz2
+
+[root@localhost ns-allinone-3.25]# pwd
+/opt/tools/network_simulators/ns3/ns-allinone-3.25
+[root@localhost ns-allinone-3.25]# 
+
+./build.py --enable-examples --enable-tests
+./build.py --enable-examples --enable-tests --with-openflow
+-----------------------------------------------------------------------------------------------------
+
+# Build NetAnim
+Entering directory `netanim-3.107'
+ =>  qmake -v
+Could not find qmake in the default path
+ =>  qmake-qt4 -v
+QMake version 2.01a
+Using Qt version 4.8.7 in /usr/lib64
+qmake-qt4 found
+ =>  qmake-qt4 NetAnim.pro
+ =>  make
+make: Nothing to be done for 'first'.
+Leaving directory `netanim-3.107'
+# Building examples (by user request)
+# Building tests (by user request)
+# Build NS-3
+Entering directory `./ns-3.25'
+ =>  /usr/bin/python waf configure --enable-examples --enable-tests --with-pybindgen ../pybindgen-0.17.0.post49+ng0e4e3bc
+Setting top to                           : /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25 
+Setting out to                           : /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/build 
+Checking for 'gcc' (C compiler)          : /usr/lib64/ccache/gcc 
+Checking for cc version                  : 5.3.1 
+Checking for 'g++' (C++ compiler)        : /usr/lib64/ccache/g++ 
+Checking for compilation flag -Wl,--soname=foo support : ok 
+Checking for program 'python'                          : /usr/bin/python 
+Checking for python version                            : (2, 7, 11, 'final', 0) 
+python-config                                          : /usr/bin/python-config 
+Asking python-config for pyembed '--cflags --libs --ldflags' flags : yes 
+Testing pyembed configuration                                      : yes 
+Asking python-config for pyext '--cflags --libs --ldflags' flags   : yes 
+Testing pyext configuration                                        : yes 
+Checking for compilation flag -fvisibility=hidden support          : ok 
+Checking for compilation flag -Wno-array-bounds support            : ok 
+Checking for pybindgen location                                    : ../pybindgen-0.17.0.post49+ng0e4e3bc (given) 
+Checking for python module 'pybindgen'                             : 0.17.0.post49+ng0e4e3bc 
+Checking for pybindgen version                                     : 0.17.0.post49+ng0e4e3bc 
+Checking for code snippet                                          : yes 
+Checking for types uint64_t and unsigned long equivalence          : no 
+Checking for code snippet                                          : no 
+Checking for types uint64_t and unsigned long long equivalence     : yes 
+Checking for the apidefs that can be used for Python bindings      : gcc-LP64 
+Checking for internal GCC cxxabi                                   : complete 
+Checking for python module 'pygccxml'                              : not found 
+Checking boost includes                                            : 1_58 
+Checking boost libs                                                : ok 
+Checking for boost linkage                                         : ok 
+Checking for click location                                        : not found 
+Checking for program 'pkg-config'                                  : /usr/bin/pkg-config 
+Checking for 'gtk+-2.0' >= 2.12                                    : yes 
+Checking for 'libxml-2.0' >= 2.7                                   : yes 
+Checking for type uint128_t                                        : not found 
+Checking for type __uint128_t                                      : yes 
+Checking high precision implementation                             : 128-bit integer (default) 
+Checking for header stdint.h                                       : yes 
+Checking for header inttypes.h                                     : yes 
+Checking for header sys/inttypes.h                                 : not found 
+Checking for header sys/types.h                                    : yes 
+Checking for header sys/stat.h                                     : yes 
+Checking for header dirent.h                                       : yes 
+Checking for header stdlib.h                                       : yes 
+Checking for header signal.h                                       : yes 
+Checking for header pthread.h                                      : yes 
+Checking for header stdint.h                                       : yes 
+Checking for header inttypes.h                                     : yes 
+Checking for header sys/inttypes.h                                 : not found 
+Checking for library rt                                            : yes 
+Checking for header sys/ioctl.h                                    : yes 
+Checking for header net/if.h                                       : yes 
+Checking for header net/ethernet.h                                 : yes 
+Checking for header linux/if_tun.h                                 : yes 
+Checking for header netpacket/packet.h                             : yes 
+Checking for NSC location                                          : not found 
+Checking for OpenFlow location                                     : not found 
+Checking for 'sqlite3'                                             : yes 
+Checking for header linux/if_tun.h                                 : yes 
+Checking for python module 'gtk'                                   : ok 
+Checking for python module 'goocanvas'                             : 0.14.1 
+Checking for python module 'pygraphviz'                            : not found 
+Checking for program 'sudo'                                        : /usr/bin/sudo 
+Checking for program 'valgrind'                                    : /usr/bin/valgrind 
+Checking for 'gsl'                                                 : yes 
+python-config                                                      : /usr/bin/libgcrypt-config 
+Checking for libgcrypt                                             : yes 
+Checking for compilation flag -Wno-error=deprecated-d... support   : ok 
+Checking for compilation flag -Wno-error=deprecated-d... support   : ok 
+Checking for compilation flag -fstrict-aliasing support            : ok 
+Checking for compilation flag -fstrict-aliasing support            : ok 
+Checking for compilation flag -Wstrict-aliasing support            : ok 
+Checking for compilation flag -Wstrict-aliasing support            : ok 
+Checking for program 'doxygen'                                     : /usr/bin/doxygen 
+---- Summary of optional NS-3 features:
+Build profile                 : debug
+Build directory               : 
+Python Bindings               : enabled
+Python API Scanning Support   : not enabled (Missing 'pygccxml' Python module)
+BRITE Integration             : not enabled (BRITE not enabled (see option --with-brite))
+NS-3 Click Integration        : not enabled (nsclick not enabled (see option --with-nsclick))
+GtkConfigStore                : enabled
+XmlIo                         : enabled
+Threading Primitives          : enabled
+Real Time Simulator           : enabled
+File descriptor NetDevice     : enabled
+Tap FdNetDevice               : enabled
+Emulation FdNetDevice         : enabled
+PlanetLab FdNetDevice         : not enabled (PlanetLab operating system not detected (see option --force-planetlab))
+Network Simulation Cradle     : not enabled (NSC not found (see option --with-nsc))
+MPI Support                   : not enabled (option --enable-mpi not selected)
+NS-3 OpenFlow Integration     : not enabled (OpenFlow not enabled (see option --with-openflow))
+SQlite stats data output      : enabled
+Tap Bridge                    : enabled
+PyViz visualizer              : not enabled (Missing python modules: pygraphviz)
+Use sudo to set suid bit      : not enabled (option --enable-sudo not selected)
+Build tests                   : enabled
+Build examples                : enabled
+GNU Scientific Library (GSL)  : enabled
+Gcrypt library                : enabled
+'configure' finished successfully (9.068s)
+ =>  /usr/bin/python waf build
+Waf: Entering directory `/opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/build'
+
+
+......
+Waf: Leaving directory `/opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (9m30.922s)
+
+Modules built:
+antenna                   aodv                      applications              
+bridge                    buildings                 config-store              
+core                      csma                      csma-layout               
+dsdv                      dsr                       energy                    
+fd-net-device             flow-monitor              internet                  
+internet-apps             lr-wpan                   lte                       
+mesh                      mobility                  mpi                       
+netanim (no Python)       network                   nix-vector-routing        
+olsr                      point-to-point            point-to-point-layout     
+propagation               sixlowpan                 spectrum                  
+stats                     tap-bridge                test (no Python)          
+topology-read             traffic-control           uan                       
+virtual-net-device        visualizer                wave                      
+wifi                      wimax                     
+
+Modules not built (see ns-3 tutorial for explanation):
+brite                     click                     openflow                  
+
+Leaving directory `./ns-3.25'
+[root@localhost ns-allinone-3.25]# 
+
+-----------------------------------------------------------------------------------------------------
+
+
+cd ns-3.25
+./test.py
+-----------------------------------------------------------------------------------------------------
+Waf: Entering directory `/opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/build'
+Waf: Leaving directory `/opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (8.337s)
+
+Modules built:
+antenna                   aodv                      applications              
+bridge                    buildings                 config-store              
+core                      csma                      csma-layout               
+dsdv                      dsr                       energy                    
+fd-net-device             flow-monitor              internet                  
+internet-apps             lr-wpan                   lte                       
+mesh                      mobility                  mpi                       
+netanim (no Python)       network                   nix-vector-routing        
+olsr                      point-to-point            point-to-point-layout     
+propagation               sixlowpan                 spectrum                  
+stats                     tap-bridge                test (no Python)          
+topology-read             traffic-control           uan                       
+virtual-net-device        visualizer                wave                      
+wifi                      wimax                     
+
+Modules not built (see ns-3 tutorial for explanation):
+brite                     click                     openflow                  
+                
+
+PASS: TestSuite attributes
+PASS: TestSuite callback
+PASS: TestSuite build-profile
+PASS: TestSuite command-line
+PASS: TestSuite global-value
+PASS: TestSuite config
+PASS: TestSuite int64x64
+PASS: TestSuite object-name-service
+PASS: TestSuite object
+PASS: TestSuite ptr
+PASS: TestSuite event-garbage-collector
+PASS: TestSuite sample
+PASS: TestSuite simulator
+PASS: TestSuite timer
+PASS: TestSuite time
+PASS: TestSuite traced-callback
+PASS: TestSuite watchdog
+PASS: TestSuite type-traits
+PASS: TestSuite hash
+PASS: TestSuite type-id
+PASS: TestSuite basic-data-calculators
+PASS: TestSuite average
+PASS: TestSuite double-probe
+PASS: TestSuite buffer
+PASS: TestSuite drop-tail-queue
+PASS: TestSuite error-model
+PASS: TestSuite ipv6-address
+PASS: TestSuite packetbb-test-suite
+PASS: TestSuite random-number-generators
+PASS: TestSuite packet-metadata
+PASS: TestSuite pcap-file
+PASS: TestSuite sequence-number
+PASS: TestSuite packet-socket-apps
+PASS: TestSuite rocketfuel-topology-reader
+PASS: TestSuite li-ion-energy-source
+PASS: TestSuite basic-energy-harvester
+PASS: TestSuite mobility
+PASS: TestSuite mobility-trace
+PASS: TestSuite mobility-ns2-trace-helper
+PASS: TestSuite steady-state-rwp-mobility-model
+PASS: TestSuite waypoint-mobility-model
+PASS: TestSuite geo-to-cartesian
+PASS: TestSuite rand-cart-around-geo
+PASS: TestSuite devices-uan
+PASS: TestSuite uan-energy-model
+PASS: TestSuite propagation-loss-model
+PASS: TestSuite okumura-hata
+PASS: TestSuite itu-r-1411-los
+PASS: TestSuite threaded-simulator
+PASS: TestSuite kun-2600-mhz
+PASS: TestSuite itu-r-1411-nlos-over-rooftop
+PASS: TestSuite buildings-helper
+PASS: TestSuite building-position-allocator
+PASS: TestSuite buildings-pathloss-test
+PASS: TestSuite buildings-shadowing-test
+PASS: TestSuite wifi-block-ack
+PASS: TestSuite devices-wifi-dcf
+PASS: TestSuite devices-wifi-tx-duration
+PASS: TestSuite power-rate-adaptation-wifi
+PASS: TestSuite devices-wifi
+PASS: TestSuite aggregation-wifi
+PASS: TestSuite wifi-error-rate-models
+PASS: TestSuite red-queue-disc
+PASS: TestSuite codel-queue-disc
+PASS: TestSuite global-route-manager-impl
+PASS: TestSuite devices-point-to-point
+PASS: TestSuite ipv4-address-generator
+PASS: TestSuite ipv4-address-helper
+PASS: TestSuite ipv4-list-routing
+PASS: TestSuite ipv4-packet-info-tag
+PASS: TestSuite ipv4-raw
+PASS: TestSuite ipv4-header
+PASS: TestSuite ipv4-fragmentation
+PASS: TestSuite ipv4-forwarding
+PASS: TestSuite ipv4-protocol
+PASS: TestSuite ipv4-static-routing
+PASS: TestSuite ipv4-global-routing
+PASS: TestSuite ipv6-extension-header
+PASS: TestSuite ipv6-list-routing
+PASS: TestSuite ipv6-packet-info-tag
+PASS: TestSuite ipv6-protocol
+PASS: TestSuite ipv6-raw
+PASS: TestSuite pfifo-fast-queue-disc
+PASS: TestSuite tcp-timestamp
+PASS: TestSuite tcp-wscaling
+PASS: TestSuite tcp
+PASS: TestSuite tcp-option
+PASS: TestSuite tcp-header
+PASS: TestSuite tcp-slow-start-test
+PASS: TestSuite random-variable-stream-generators
+PASS: TestSuite tcp-cong-avoid-test
+PASS: TestSuite tcp-fast-retr-test
+PASS: TestSuite tcp-rto-test
+PASS: TestSuite tcp-highspeed-test
+PASS: TestSuite tcp-hybla-test
+PASS: TestSuite tcp-zero-window-test
+PASS: TestSuite tcp-pkts-acked-test
+PASS: TestSuite tcp-bytes-in-flight-test
+PASS: TestSuite udp
+PASS: TestSuite ipv6-address-generator
+PASS: TestSuite tcp-rtt-estimation-test
+PASS: TestSuite ipv6-dual-stack
+PASS: TestSuite ipv6-fragmentation
+PASS: TestSuite ipv6-forwarding
+PASS: TestSuite ipv6-address-helper
+PASS: TestSuite ipv6-ripng
+PASS: TestSuite rtt-estimator
+PASS: TestSuite ipv4-rip
+PASS: TestSuite tcp-endpoint-bug2211-test
+PASS: TestSuite tcp-datasentcb
+PASS: TestSuite sixlowpan-hc1
+PASS: TestSuite wave-mac-extension
+PASS: TestSuite wifi-80211p-ocb
+PASS: TestSuite sixlowpan-iphc
+PASS: TestSuite sixlowpan-fragmentation
+PASS: TestSuite routing-olsr
+PASS: TestSuite routing-olsr-header
+PASS: TestSuite wimax-mac-messages
+PASS: TestSuite wimax-tlv
+PASS: TestSuite routing-olsr-regression
+PASS: TestSuite wimax-service-flow
+PASS: TestSuite wimax-ss-mac-layer
+PASS: TestSuite wimax-phy-layer
+PASS: TestSuite wimax-fragmentation
+PASS: TestSuite devices-mesh-dot11s
+PASS: TestSuite devices-mesh
+PASS: TestSuite wimax-qos
+PASS: TestSuite devices-mesh-flame
+PASS: TestSuite devices-mesh-flame-regression
+PASS: TestSuite histogram
+PASS: TestSuite routing-dsr
+PASS: TestSuite devices-mesh-dot11s-regression
+PASS: TestSuite routing-dsdv
+PASS: TestSuite udp-client-server
+PASS: TestSuite aodv-routing-id-cache
+PASS: TestSuite routing-aodv
+PASS: TestSuite routing-aodv-loopback
+PASS: TestSuite angles
+PASS: TestSuite degrees-radians
+PASS: TestSuite isotropic-antenna-model
+PASS: TestSuite cosine-antenna-model
+PASS: TestSuite parabolic-antenna-model
+PASS: TestSuite spectrum-interference
+PASS: TestSuite spectrum-value
+PASS: TestSuite routing-aodv-regression
+PASS: TestSuite spectrum-converter
+PASS: TestSuite waveform-generator
+PASS: TestSuite tv-helper-distribution
+PASS: TestSuite lte-downlink-sinr
+PASS: TestSuite lte-uplink-sinr
+PASS: TestSuite tv-spectrum-transmitter
+PASS: TestSuite spectrum-ideal-phy
+PASS: TestSuite packet
+PASS: TestSuite lte-link-adaptation
+PASS: TestSuite lte-interference
+PASS: TestSuite lte-rr-ff-mac-scheduler
+PASS: TestSuite lte-pf-ff-mac-scheduler
+PASS: TestSuite lte-fdmt-ff-mac-scheduler
+PASS: TestSuite lte-tdmt-ff-mac-scheduler
+PASS: TestSuite lte-tta-ff-mac-scheduler
+PASS: TestSuite lte-fdbet-ff-mac-scheduler
+PASS: TestSuite lte-tdbet-ff-mac-scheduler
+PASS: TestSuite lte-fdtbfq-ff-mac-scheduler
+PASS: TestSuite lte-tdtbfq-ff-mac-scheduler
+PASS: TestSuite lte-earfcn
+PASS: TestSuite lte-spectrum-value-helper
+PASS: TestSuite lte-pathloss-model
+PASS: TestSuite lte-rlc-header
+PASS: TestSuite lte-rlc-um-transmitter
+PASS: TestSuite lte-rlc-am-transmitter
+PASS: TestSuite lte-rlc-um-e2e
+PASS: TestSuite epc-gtpu
+PASS: TestSuite eps-tft-classifier
+PASS: TestSuite epc-s1u-downlink
+PASS: TestSuite epc-s1u-uplink
+PASS: TestSuite lte-rlc-am-e2e
+PASS: TestSuite lte-antenna
+PASS: TestSuite lte-epc-e2e-data
+PASS: TestSuite lte-pss-ff-mac-scheduler
+PASS: TestSuite lte-mimo
+PASS: TestSuite lte-phy-error-model
+PASS: TestSuite lte-cqa-ff-mac-scheduler
+PASS: TestSuite lte-rrc
+PASS: TestSuite test-asn1-encoding
+PASS: TestSuite lte-ue-measurements
+PASS: TestSuite lte-harq
+PASS: TestSuite lte-x2-handover
+PASS: TestSuite lte-ue-measurements-piecewise-1
+PASS: TestSuite lte-cell-selection
+PASS: TestSuite lte-handover-delay
+PASS: TestSuite lte-ue-measurements-handover
+PASS: TestSuite lte-handover-target
+PASS: TestSuite lte-ue-measurements-piecewise-2
+PASS: TestSuite lte-downlink-power-control
+PASS: TestSuite lte-uplink-power-control
+PASS: TestSuite lte-test-deactivate-bearer
+PASS: TestSuite lte-interference-fr
+PASS: TestSuite animation-interface
+PASS: TestSuite lr-wpan-ack
+PASS: TestSuite lr-wpan-clear-channel-assessment
+PASS: TestSuite lr-wpan-collision
+PASS: TestSuite lr-wpan-energy-detection
+PASS: TestSuite lr-wpan-error-model
+PASS: TestSuite lr-wpan-packet
+PASS: TestSuite lr-wpan-plme-pd-sap
+PASS: TestSuite lr-wpan-spectrum-value-helper
+PASS: TestSuite lte-x2-handover-measures
+PASS: TestSuite csma-system
+SKIP: TestSuite ns3-tcp-cwnd
+SKIP: TestSuite ns3-tcp-interoperability
+PASS: TestSuite lte-cqi-generation
+PASS: TestSuite ns3-tcp-no-delay
+PASS: TestSuite ns3-tcp-loss
+PASS: TestSuite ns3-tcp-socket
+SKIP: TestSuite nsc-tcp-loss
+PASS: TestSuite ns3-tcp-state
+PASS: TestSuite ns3-wifi-interference
+PASS: TestSuite traced-callback-typedef
+PASS: TestSuite traced-value-callback
+PASS: Example examples/udp/udp-echo
+PASS: TestSuite ns3-wifi-msdu-aggregator
+PASS: Example examples/tcp/star
+PASS: Example examples/tcp/tcp-star-server
+PASS: Example examples/tcp/tcp-large-transfer
+PASS: TestSuite adaptive-red-queue-disc
+PASS: Example examples/wireless/mixed-wireless
+PASS: Example examples/wireless/multirate --totalTime=0.3s --rateManager=ns3::AarfcdWifiManager
+PASS: Example examples/wireless/multirate --totalTime=0.3s --rateManager=ns3::AmrrWifiManager
+PASS: Example examples/wireless/multirate --totalTime=0.3s --rateManager=ns3::CaraWifiManager
+PASS: Example examples/wireless/multirate --totalTime=0.3s --rateManager=ns3::IdealWifiManager
+PASS: Example examples/wireless/multirate --totalTime=0.3s --rateManager=ns3::MinstrelWifiManager
+PASS: Example examples/wireless/multirate --totalTime=0.3s --rateManager=ns3::OnoeWifiManager
+PASS: Example examples/wireless/multirate --totalTime=0.3s --rateManager=ns3::RraaWifiManager
+PASS: Example examples/wireless/wifi-simple-adhoc
+PASS: Example examples/wireless/wifi-ap --verbose=0
+PASS: Example examples/wireless/wifi-simple-infra
+PASS: Example examples/wireless/wifi-simple-adhoc-grid
+PASS: Example examples/wireless/wifi-simple-interference
+PASS: Example examples/wireless/wifi-wired-bridging
+PASS: Example examples/wireless/power-adaptation-distance --manager=ns3::ParfWifiManager --outputFileName=parf --steps=5 --stepsSize=10
+PASS: Example examples/wireless/ofdm-ht-validation
+PASS: Example examples/wireless/ofdm-validation
+PASS: Example examples/wireless/ofdm-vht-validation
+PASS: Example examples/tcp/tcp-variants-comparison
+PASS: Example examples/wireless/power-adaptation-distance --manager=ns3::AparfWifiManager --outputFileName=aparf --steps=5 --stepsSize=10
+PASS: Example examples/traffic-control/traffic-control
+PASS: Example examples/realtime/realtime-udp-echo
+PASS: Example examples/tutorial/first
+PASS: Example examples/tutorial/hello-simulator
+PASS: Example examples/tutorial/second
+PASS: Example examples/tutorial/third
+PASS: Example examples/tutorial/fourth
+PASS: Example examples/tutorial/fifth
+PASS: Example examples/tutorial/sixth
+PASS: Example examples/tutorial/seventh
+PASS: Example examples/routing/dynamic-global-routing
+PASS: Example examples/routing/global-injection-slash32
+PASS: Example examples/routing/global-routing-slash32
+PASS: Example examples/routing/mixed-global-routing
+PASS: Example examples/routing/simple-alternate-routing
+PASS: Example examples/routing/simple-global-routing
+PASS: Example examples/routing/simple-routing-ping6
+PASS: Example examples/routing/static-routing-slash32
+PASS: Example examples/naming/object-names
+PASS: Example examples/stats/wifi-example-sim
+PASS: Example examples/ipv6/icmpv6-redirect
+PASS: Example examples/ipv6/ping6
+PASS: Example examples/ipv6/radvd
+PASS: Example examples/ipv6/radvd-two-prefix
+PASS: Example examples/ipv6/test-ipv6
+PASS: Example examples/error-model/simple-error-model
+PASS: Example examples/energy/energy-model-example
+PASS: Example src/aodv/examples/aodv
+PASS: Example src/bridge/examples/csma-bridge
+PASS: Example src/bridge/examples/csma-bridge-one-hop
+PASS: Example src/buildings/examples/buildings-pathloss-profiler
+PASS: Example src/config-store/examples/config-store-save
+PASS: Example src/core/examples/main-callback
+PASS: Example src/core/examples/sample-simulator
+PASS: Example src/core/examples/main-ptr
+PASS: Example examples/wireless/wifi-tcp
+PASS: Example src/core/examples/sample-random-variable
+PASS: Example src/csma/examples/csma-broadcast
+PASS: Example src/csma/examples/csma-multicast
+PASS: Example src/csma/examples/csma-one-subnet
+PASS: Example src/csma/examples/csma-packet-socket
+PASS: Example src/csma/examples/csma-ping
+PASS: Example src/csma/examples/csma-raw-ip-socket
+PASS: Example src/energy/examples/li-ion-energy-source
+PASS: Example src/energy/examples/rv-battery-model-test
+PASS: Example src/fd-net-device/examples/dummy-network
+PASS: Example src/core/examples/main-random-variable
+PASS: Example src/internet/examples/main-simple
+PASS: Example src/lr-wpan/examples/lr-wpan-data
+PASS: Example src/fd-net-device/examples/fd2fd-onoff
+PASS: Example src/lr-wpan/examples/lr-wpan-error-model-plot
+PASS: Example src/lr-wpan/examples/lr-wpan-packet-print
+PASS: Example src/lr-wpan/examples/lr-wpan-phy-test
+PASS: Example src/lte/examples/lena-cqi-threshold
+PASS: Example src/lte/examples/lena-dual-stripe
+PASS: Example src/lte/examples/lena-dual-stripe --simTime=0.0 --nApartmentsX=1 --homeEnbDeploymentRatio=0.5 --nMacroEnbSites=0 --macroUeDensity=0 --nBlocks=1
+PASS: Example src/lte/examples/lena-dual-stripe --epc=1 --simTime=0.0 --nApartmentsX=1 --homeEnbDeploymentRatio=0.5 --nMacroEnbSites=0 --macroUeDensity=0 --nBlocks=1
+PASS: Example src/lte/examples/lena-dual-stripe --simTime=0.01
+PASS: Example src/lte/examples/lena-dual-stripe --epc=1 --simTime=0.01
+PASS: Example src/lte/examples/lena-dual-stripe --epc=1 --useUdp=0 --simTime=0.01
+PASS: Example src/lte/examples/lena-dual-stripe --epc=1 --fadingTrace=../../src/lte/model/fading-traces/fading_trace_EPA_3kmph.fad --simTime=0.01
+PASS: Example src/lte/examples/lena-dual-stripe --nBlocks=1  --nMacroEnbSites=0 --macroUeDensity=0 --homeEnbDeploymentRatio=1 --homeEnbActivationRatio=1 --homeUesHomeEnbRatio=2 --macroEnbTxPowerDbm=0 --simTime=0.01
+PASS: Example src/lte/examples/lena-dual-stripe --nMacroEnbSites=0 --macroUeDensity=0 --nBlocks=1 --nApartmentsX=4 --nMacroEnbSitesX=0 --homeEnbDeploymentRatio=1 --homeEnbActivationRatio=1 --macroEnbTxPowerDbm=0 --epcDl=1 --epcUl=0 --epc=1 --numBearersPerUe=4 --homeUesHomeEnbRatio=15 --simTime=0.01
+PASS: Example src/lte/examples/lena-fading
+PASS: Example src/lte/examples/lena-intercell-interference --simTime=0.1
+PASS: Example src/lte/examples/lena-pathloss-traces
+PASS: Example src/lr-wpan/examples/lr-wpan-error-distance-plot
+PASS: Example src/lte/examples/lena-profiling
+PASS: Example src/lte/examples/lena-profiling --simTime=0.1 --nUe=2 --nEnb=5 --nFloors=0
+PASS: Example src/lte/examples/lena-rlc-traces
+PASS: Example src/lte/examples/lena-rem
+PASS: Example src/lte/examples/lena-profiling --simTime=0.1 --nUe=3 --nEnb=6 --nFloors=1
+PASS: Example src/lte/examples/lena-rem-sector-antenna
+PASS: Example src/lte/examples/lena-simple
+PASS: Example src/lte/examples/lena-simple-epc
+PASS: Example src/lte/examples/lena-x2-handover
+PASS: Example src/mobility/examples/main-grid-topology
+PASS: Example src/mesh/examples/mesh
+PASS: Example src/mobility/examples/main-random-topology
+PASS: Example src/mobility/examples/main-random-walk
+PASS: Example src/netanim/examples/star-animation
+PASS: Example src/netanim/examples/grid-animation
+PASS: Example src/netanim/examples/dumbbell-animation
+PASS: Example src/network/examples/main-packet-header
+PASS: Example src/network/examples/main-packet-tag
+PASS: Example src/nix-vector-routing/examples/nix-simple
+PASS: Example src/olsr/examples/simple-point-to-point-olsr
+PASS: Example src/netanim/examples/wireless-animation
+PASS: Example src/spectrum/examples/adhoc-aloha-ideal-phy
+PASS: Example src/spectrum/examples/adhoc-aloha-ideal-phy-with-microwave-oven
+PASS: Example src/spectrum/examples/adhoc-aloha-ideal-phy-matrix-propagation-loss-model
+PASS: Example src/stats/examples/double-probe-example
+PASS: Example src/stats/examples/file-aggregator-example
+PASS: Example src/stats/examples/file-helper-example
+PASS: Example src/stats/examples/gnuplot-aggregator-example
+PASS: Example src/stats/examples/gnuplot-helper-example
+PASS: Example src/uan/examples/uan-rc-example
+PASS: Example src/propagation/examples/main-propagation-loss
+PASS: Example src/virtual-net-device/examples/virtual-net-device
+PASS: Example src/wave/examples/wave-simple-80211p
+PASS: Example src/wave/examples/wave-simple-device
+PASS: Example src/wimax/examples/wimax-simple
+PASS: Example src/wimax/examples/wimax-ipv4
+PASS: Example src/wimax/examples/wimax-multicast
+PASS: Example examples/wireless/wifi-ap.py
+PASS: Example examples/wireless/mixed-wireless.py
+PASS: Example examples/tutorial/first.py
+PASS: Example examples/routing/simple-routing-ping6.py
+PASS: Example src/bridge/examples/csma-bridge.py
+PASS: Example src/core/examples/sample-simulator.py
+PASS: Example src/uan/examples/uan-cw-example
+PASS: Example src/flow-monitor/examples/wifi-olsr-flowmon.py
+PASS: Example examples/wireless/mixed-bg-network
+PASS: TestSuite lte-frequency-reuse
+356 of 359 tests passed (356 passed, 3 skipped, 0 failed, 0 crashed, 0 valgrind errors)
+List of SKIPped tests:
+    ns3-tcp-cwnd
+    ns3-tcp-interoperability
+    nsc-tcp-loss
+[root@localhost ns-3.25]# 
+
+-----------------------------------------------------------------------------------------------------
+Building with Waf
+------------------------
+Up to this point, we have used either the build.py script, or the bake tool, to get started with building ns-3. These tools are useful for building ns-3 and supporting libraries, and they call into the ns-3 directory to call the Waf build tool to do the actual building. Most users quickly transition to using Waf directly to configure and build ns-3. So, to proceed, please change your working directory to the ns-3 directory that you have initially built.
+-----------------------------------------------------------------------------------------------------
+[root@localhost ns-3.25]# pwd
+/opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
+[root@localhost ns-3.25]# 
+
+./waf clean
+./waf --build-profile=optimized --enable-examples --enable-tests configure
+
+./waf --help
+./test.py -c core
+./waf --run hello-simulator
+
+-----------------------------------------------------------------------------------------------------
+// ./waf clean
+// ./waf configure --enable-examples --enable-tests
+// ./waf clean
+// ./waf configure --build-profile=optimized --enable-examples --enable-tests
+
+./waf clean
+./waf configure --build-profile=debug --enable-examples --enable-tests 	//use this command
+./waf 	//build the debug versions of the ns-3 programs, will take a long time
+
+------------------------------------------------------
+[root@localhost ns-3.25]# pwd
+/opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
+[root@localhost ns-3.25]# 
+
+cp examples/tutorial/first.cc scratch/myfirst.cc
+./waf 	//Now build your first example script using waf
+./waf --run scratch/myfirst
+------------------------------------------------------
+[root@localhost ns-3.25]# ./waf --run scratch/myfirst
+Waf: Entering directory `/opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/build'
+Waf: Leaving directory `/opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (2.072s)
+At time 2s client sent 1024 bytes to 10.1.1.2 port 9
+At time 2.00369s server received 1024 bytes from 10.1.1.1 port 49153
+At time 2.00369s server sent 1024 bytes to 10.1.1.1 port 49153
+At time 2.00737s client received 1024 bytes from 10.1.1.2 port 9
+[root@localhost ns-3.25]# 
+------------------------------------------------------
+
