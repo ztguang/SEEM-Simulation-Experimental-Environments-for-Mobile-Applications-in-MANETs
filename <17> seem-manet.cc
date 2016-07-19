@@ -344,15 +344,15 @@ int main (int argc, char *argv[])
   tapBridge.Install (adhocNodes.Get (18), adhocDevices.Get (18));
   tapBridge.SetAttribute ("DeviceName", StringValue ("tap_d_20"));
   tapBridge.Install (adhocNodes.Get (19), adhocDevices.Get (19));
-  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_21"));
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_1"));
   tapBridge.Install (adhocNodes.Get (20), adhocDevices.Get (20));
-  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_22"));
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_2"));
   tapBridge.Install (adhocNodes.Get (21), adhocDevices.Get (21));
-  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_23"));
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_3"));
   tapBridge.Install (adhocNodes.Get (22), adhocDevices.Get (22));
-  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_24"));
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_4"));
   tapBridge.Install (adhocNodes.Get (23), adhocDevices.Get (23));
-  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_25"));
+  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_5"));
   tapBridge.Install (adhocNodes.Get (24), adhocDevices.Get (24));
   
 
