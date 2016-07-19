@@ -19,6 +19,8 @@
 # Description:
 # create $docker_node_num of dockers
 # receive two parameters, that are docker_node_num, docker_image
+#
+# IP address scope: 112.26.1.${id}/16
 #------------------------------------------------------------------------------------------
 
 create_docker(){	
@@ -30,6 +32,11 @@ create_docker(){
 	# arptables) disabled. If you do not do this, only STP and ARP traffic will be allowed to 
 	# flow across your bridge and your whole scenario will not work.
 	# if directory "/proc/sys/net/bridge" missing, I execute "modprobe br_netfilter" to get this directory again.
+
+	if [ ! -d /proc/sys/net/bridge ]; then
+		modprobe br_netfilter
+	fi
+
 	cd /proc/sys/net/bridge
 	for f in bridge-nf-*; do echo 0 > $f; done
 	cd -
@@ -67,7 +74,7 @@ create_docker(){
 		# You are going to need to run your container with --privileged
 		gnome-terminal -x bash -c "docker run --privileged -it -d --net='none' --name \"docker_${id}\" $2"
 		sleep 2
-		docker exec docker_${id} /bin/sh -c "sed -i '21a \ router-id 10.1.0.${id}' /usr/local/etc/ospf6d.conf"
+		docker exec docker_${id} /bin/sh -c "sed -i '21a \ router-id 10.1.1.${id}' /usr/local/etc/ospf6d.conf"
 		docker exec docker_${id} /bin/sh -c "zebra -d &>/dev/null"
 		docker exec docker_${id} /bin/sh -c "ospf6d -d &>/dev/null"
 
@@ -86,25 +93,27 @@ create_docker(){
 		ip link add ${veth} type veth peer name ${deth}
 		brctl addif ${bridge} ${veth}
 		ip link set ${veth} up
-		#ifconfig ${veth} 0.0.0.0 promisc up
+		# ifconfig ${veth} 0.0.0.0 promisc up
 
 		ip link set ${deth} netns ${pid}
 
 		tunctl -t ${tap}
 		ifconfig ${tap} up
-		#ifconfig ${tap} 0.0.0.0 promisc up
+		# ifconfig ${tap} promisc up
+		# ifconfig ${tap} 0.0.0.0 promisc up
 
 		brctl addif ${bridge} ${tap}
 		ifconfig ${bridge} up
-		#ifconfig ${bridge} 0.0.0.0 promisc up
+		# ifconfig ${bridge} promisc up
+		# ifconfig ${bridge} 0.0.0.0 promisc up
 
 		ln -s /proc/${pid}/ns/net /var/run/netns/${pid}
 
 		ip netns exec ${pid} ip link set dev ${deth} name eth0
 		ip netns exec ${pid} ip link set eth0 up
+		# ip netns exec ${pid} ip addr add 192.168.26.${id}/24 dev eth0
 		ip netns exec ${pid} ip addr add 112.26.1.${id}/16 dev eth0
 	done
-
 }
 
 #------------------------------------------------------------------------------------------
@@ -163,6 +172,8 @@ destroy_docker(){
 # Description:
 # create $android_node_num of dockers
 # receive three parameters, that are docker_node_num, android_node_num, VM_image
+#
+# IP address scope: 112.26.2.${id}/16
 #------------------------------------------------------------------------------------------
 
 create_android(){	
@@ -175,6 +186,11 @@ create_android(){
 	# You will also have to make sure that your kernel has ethernet filtering (ebtables, bridge-nf,
 	# arptables) disabled. If you do not do this, only STP and ARP traffic will be allowed to 
 	# flow across your bridge and your whole scenario will not work.
+
+	if [ ! -d /proc/sys/net/bridge ]; then
+		modprobe br_netfilter
+	fi
+
 	cd /proc/sys/net/bridge
 	for f in bridge-nf-*; do echo 0 > $f; done
 	cd -
@@ -256,12 +272,16 @@ create_android(){
 		# VBoxManage storageattach android-x86_64-6.0-rc1-1 --storagectl "IDE Controller" --port 0 --device 0 --type hdd --medium android-x86_64-6.0-rc1-1.vdi
 		# VBoxManage startvm android-x86_64-6.0-rc1-1
 
-		nictracefile="/root/tmp/nictracefile_"
+		# --nic1 bridged --nictype1 Am79C973 --nictrace1 on --nictracefile1 $nictracefile${id} --bridgeadapter1 ${bridge}
+		# nictracefile="/root/tmp/nictracefile_"
+
+# VBoxManage storagectl $3${id} --name \"IDE Controller\" --add ide --controller PIIX4; \
+# VBoxManage internalcommands sethduuid $4/$3${id}.vdi; \
 
 		echo "VBoxManage startvm $3${id}"
 
 		gnome-terminal -x bash -c "VBoxManage createvm --name $3${id} --ostype Linux_64 --register; \
-VBoxManage modifyvm $3${id} --memory 1024 --vram 128 --usb off --audio pulse --audiocontroller sb16 --acpi on --rtcuseutc off --boot1 disk --boot2 dvd --nic1 bridged --nictype1 Am79C973 --nictrace1 on --nictracefile1 $nictracefile${id} --bridgeadapter1 ${bridge} --nic2 none --nic3 none --nic4 none; \
+VBoxManage modifyvm $3${id} --memory 1024 --vram 128 --usb off --audio pulse --audiocontroller sb16 --acpi on --rtcuseutc off --boot1 disk --boot2 dvd --nic1 bridged --nictype1 Am79C973 --bridgeadapter1 ${bridge} --nic2 none --nic3 none --nic4 none; \
 VBoxManage storagectl $3${id} --name \"IDE Controller\" --add ide --controller PIIX4; \
 VBoxManage internalcommands sethduuid $4/$3${id}.vdi; \
 VBoxManage storageattach $3${id} --storagectl \"IDE Controller\" --port 0 --device 0 --type hdd --medium $4/$3${id}.vdi; \
@@ -457,15 +477,15 @@ if [ $# -eq 6 ]; then
 			if [ $2 -gt 0 ]; then create_docker $2 $4; fi
 			if [ $3 -gt 0 ]; then create_android $2 $3 $5 $6; fi
 			if [ $[a+b] -gt 0 ]; then
-				#create_ns3_manet_seem_cc $2 $3
+				create_ns3_manet_seem_cc $2 $3
 
 	# waiting a while, push init_in_android-x86_64.sh in create_vm(),
 	# due to that init_in_android-x86_64.sh may be exist in android-x86_64-6.0-rc1-[1-252].vdi
 	# if create android-x86_64-6.0-rc1-[1-252].vdi from scratch create, then can delete the following line. 
 	# look at seem-tools-auto_create_vm_android.sh
-				#sleep 60
+				sleep 60
 
-				#start_ns3
+				start_ns3
 
 				echo $2
 			fi
@@ -493,6 +513,8 @@ fi
 # android-x86_64-6.0-rc1-1.vdi  android-x86_64-6.0-rc1-3.vdi  android-x86_64-6.0-rc1-5.vdi
 # [root@localhost virtualbox-os]# 
 
+
+
 #-----------------------------------------------------------------------------
 # 25 docker (centos)
 #-----------------------------------------------------------------------------
@@ -510,6 +532,8 @@ fi
 # ./waf --run scratch/seem-manet-25-docker --vis
 # ./waf --run scratch/seem-manet-5-docker --vis
 #
+# [root@localhost tmp]# tcpdump -vv -n -i br_d_1
+#
 # docker run --privileged -it -d --name "docker_1" centos-manet
 # docker ps -a
 # docker attach docker_1
@@ -521,6 +545,8 @@ fi
 
 # [root@localhost tmp]# tcpdump -i veth_1 > veth_1.txt
 # [root@localhost tmp]# gedit veth_1.txt
+
+
 
 #-----------------------------------------------------------------------------
 # 5 android-x86_64
@@ -554,6 +580,7 @@ fi
 # [root@localhost tmp]# tcpdump -i br_a_2 ip6 > br_a_2.txt
 # [root@localhost tmp]# tcpdump -ne -i br_a_2 ip6 > br_a_2.txt
 
+# [root@localhost tmp]# tcpdump -vv -n -i br_a_1
 
 # have you enabled IPv6 on the interface at all? if the bridge device is br_a_1, then do this:
 # sysctl net.ipv6.conf.br_a_1.disable_ipv6=0
@@ -583,6 +610,14 @@ fi
 # setprop service.adb.tcp.port 5555
 # stop adbd
 # start adbd
+
+# cd /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+
+# VBoxManage createvm --name android-x86_64-6.0-rc1-0 --ostype Linux_64 --register
+# VBoxManage modifyvm android-x86_64-6.0-rc1-0 --memory 1024 --vram 128 --usb off --audio pulse --audiocontroller sb16 --acpi on --rtcuseutc off --boot1 disk --boot2 dvd --nic1 hostonly --nictype1 Am79C973 --hostonlyadapter1 vboxnet0
+# VBoxManage storagectl android-x86_64-6.0-rc1-0 --name "IDE Controller" --add ide --controller PIIX4
+# VBoxManage storageattach android-x86_64-6.0-rc1-0 --storagectl "IDE Controller" --port 0 --device 0 --type hdd --medium android-x86_64-6.0-rc1-0.vdi
+# VBoxManage startvm android-x86_64-6.0-rc1-0
 
 #------------------------------------------------------------------------------------------
 # So far, All is OK
