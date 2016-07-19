@@ -29,6 +29,7 @@ create_docker(){
 	# You will also have to make sure that your kernel has ethernet filtering (ebtables, bridge-nf,
 	# arptables) disabled. If you do not do this, only STP and ARP traffic will be allowed to 
 	# flow across your bridge and your whole scenario will not work.
+	# if directory "/proc/sys/net/bridge" missing, I execute "modprobe br_netfilter" to get this directory again.
 	cd /proc/sys/net/bridge
 	for f in bridge-nf-*; do echo 0 > $f; done
 	cd -
@@ -90,7 +91,8 @@ create_docker(){
 		ip link set ${deth} netns ${pid}
 
 		tunctl -t ${tap}
-		ifconfig ${tap} 0.0.0.0 promisc up
+		ifconfig ${tap} up
+		#ifconfig ${tap} 0.0.0.0 promisc up
 
 		brctl addif ${bridge} ${tap}
 		ifconfig ${bridge} up
@@ -200,7 +202,8 @@ create_android(){
 
 		tunctl -t ${tap}
 		#ip link set up dev ${tap}
-		ifconfig ${tap} 0.0.0.0 promisc up
+		#ifconfig ${tap} 0.0.0.0 promisc up
+		ifconfig ${tap} up
 		brctl addbr ${bridge}
 		brctl addif ${bridge} ${tap}
 		#ip link set up dev ${bridge}
@@ -253,10 +256,12 @@ create_android(){
 		# VBoxManage storageattach android-x86_64-6.0-rc1-1 --storagectl "IDE Controller" --port 0 --device 0 --type hdd --medium android-x86_64-6.0-rc1-1.vdi
 		# VBoxManage startvm android-x86_64-6.0-rc1-1
 
+		nictracefile="/root/tmp/nictracefile_"
+
 		echo "VBoxManage startvm $3${id}"
 
 		gnome-terminal -x bash -c "VBoxManage createvm --name $3${id} --ostype Linux_64 --register; \
-VBoxManage modifyvm $3${id} --memory 1024 --vram 128 --usb off --audio pulse --audiocontroller sb16 --acpi on --rtcuseutc off --boot1 disk --boot2 dvd --nic1 bridged --bridgeadapter1 ${bridge} --nic2 none --nic3 none --nic4 none; \
+VBoxManage modifyvm $3${id} --memory 1024 --vram 128 --usb off --audio pulse --audiocontroller sb16 --acpi on --rtcuseutc off --boot1 disk --boot2 dvd --nic1 bridged --nictype1 Am79C973 --nictrace1 on --nictracefile1 $nictracefile${id} --bridgeadapter1 ${bridge} --nic2 none --nic3 none --nic4 none; \
 VBoxManage storagectl $3${id} --name \"IDE Controller\" --add ide --controller PIIX4; \
 VBoxManage internalcommands sethduuid $4/$3${id}.vdi; \
 VBoxManage storageattach $3${id} --storagectl \"IDE Controller\" --port 0 --device 0 --type hdd --medium $4/$3${id}.vdi; \
@@ -460,9 +465,9 @@ if [ $# -eq 6 ]; then
 	# look at seem-tools-auto_create_vm_android.sh
 				#sleep 60
 
-				#start_ns3
+				start_ns3
 
-				#echo $2
+				echo $2
 			fi
 		;;
 		destroy)
@@ -493,6 +498,9 @@ fi
 #-----------------------------------------------------------------------------
 # systemctl start docker.service
 
+# [root@localhost fedora23server-share]# pwd
+# /opt/share-vm/fedora23server-share
+
 # ./seem-tools-CLI-semi-auto.sh create 25 0 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 
 # ./seem-tools-CLI-semi-auto.sh destroy 25 0 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
@@ -511,10 +519,16 @@ fi
 # docker ps
 # docker rmi 2c067614b89f
 
+# [root@localhost tmp]# tcpdump -i veth_1 > veth_1.txt
+# [root@localhost tmp]# gedit veth_1.txt
+
 #-----------------------------------------------------------------------------
 # 5 android-x86_64
 #-----------------------------------------------------------------------------
 #
+# [root@localhost fedora23server-share]# pwd
+# /opt/share-vm/fedora23server-share
+
 # ./seem-tools-CLI-semi-auto.sh create 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 #
 # ./seem-tools-CLI-semi-auto.sh destroy 0 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
@@ -523,6 +537,53 @@ fi
 # ./waf --run scratch/seem-manet --vis
 # ./waf --run scratch/seem-manet-5-android --vis
 #
+# busybox route add -host 112.26.2.1 dev eth0
+# busybox route add -host 112.26.2.1 gw 112.26.2.254
+
+# [root@localhost tmp]# pwd
+# /root/tmp
+# [root@localhost tmp]# ls
+# nictracefile_1  nictracefile_2  nictracefile_3  nictracefile_4  nictracefile_5  t.txt
+# [root@localhost tmp]# tcpdump -r nictracefile_1
+# [root@localhost tmp]# tcpdump -r nictracefile_1 > nictracefile_1.txt
+# [root@localhost tmp]# gedit nictracefile_1.txt
+
+# [root@localhost tmp]# tcpdump -i vboxnet0 > vboxnet0.txt
+# [root@localhost tmp]# tcpdump -i vboxnet0 ip6 > vboxnet0.txt
+# [root@localhost tmp]# tcpdump -i br_a_1 > br_a_1.txt
+# [root@localhost tmp]# tcpdump -i br_a_2 ip6 > br_a_2.txt
+# [root@localhost tmp]# tcpdump -ne -i br_a_2 ip6 > br_a_2.txt
+
+
+# have you enabled IPv6 on the interface at all? if the bridge device is br_a_1, then do this:
+# sysctl net.ipv6.conf.br_a_1.disable_ipv6=0
+# sysctl net.ipv6.conf.br_a_1.autoconf=1
+# sysctl net.ipv6.conf.br_a_1.accept_ra=1
+# sysctl net.ipv6.conf.br_a_1.accept_ra_defrtr=1
+# less /proc/sys/net/ipv6/conf/br_a_1/disable_ipv6
+
+# Every IPv6 address, even link-local ones, automatically subscribe to a multicast group based on its last 24 bits. If multicast snooping is enabled, the bridge filters out (almost) all multicast traffic by default. When an IPv6 address is assigned to an interface, the system must inform the network that this interface is interested in that particular multicast group and must be excluded by the filter. The following is a good introductory video: https://www.youtube.com/watch?v=O1JMdjnn0ao
+# Multicast snooping is there to prevent flooding the network with multicast packets that most systems aren't interested. You can disable multicast snooping in small deployments without noticing any big difference. But this may have significant performance impact on larger deployments.   You can disable snooping with:
+# echo -n 0 > /sys/class/net/br_a_1/bridge/multicast_snooping
+# echo -n 0 > /sys/class/net/br_a_2/bridge/multicast_snooping
+# echo -n 0 > /sys/class/net/br_a_3/bridge/multicast_snooping
+# echo -n 0 > /sys/class/net/br_a_4/bridge/multicast_snooping
+# echo -n 0 > /sys/class/net/br_a_5/bridge/multicast_snooping
+
+# If you want to protect your VMs from unwanted traffic and unnecessary packet processing, you can leave snooping enabled but also enable a multicast Querier on the network. A Querier will periodically broadcast query packets and update snooping filters on switches and bridges. It is possible to enable a Querier on your system with:
+# echo -n 1 > /sys/class/net/br_a_1/bridge/multicast_querier
+# echo -n 1 > /sys/class/net/br_a_2/bridge/multicast_querier
+# echo -n 1 > /sys/class/net/br_a_3/bridge/multicast_querier
+# echo -n 1 > /sys/class/net/br_a_4/bridge/multicast_querier
+# echo -n 1 > /sys/class/net/br_a_5/bridge/multicast_querier
+
+# ip -6 nei
+# ip -4 neighbor
+
+# setprop service.adb.tcp.port 5555
+# stop adbd
+# start adbd
+
 #------------------------------------------------------------------------------------------
 # So far, All is OK
 #------------------------------------------------------------------------------------------
