@@ -1,0 +1,121 @@
+
+[root@localhost mongoose-android-x86]# pwd
+/opt/android-on-linux/mongoose/mongoose-android-x86
+
+[root@localhost mongoose-android-x86]# ls
+CONTRIBUTING.md  docs  examples  jni  LICENSE  mongoose.c  mongoose.h  README.md
+
+[root@localhost mongoose-android-x86]# gedit examples/examples.mk 
+
+//----------------------------------------------------------
+#NDK_ROOT = /opt/android-on-linux/android-ndk-r12
+#SYSROOT = $(NDK_ROOT)/platforms/android-23/arch-x86_64/
+#CFLAGS = --sysroot=$(SYSROOT) --pipe -I$(NDK_ROOT)/sources/cxx-stl/stlport/stlport
+#CFLAGS += -I$(NDK_ROOT)/platforms/android-23/arch-x86_64/usr/include
+#CFLAGS += -I$(NDK_ROOT)/toolchains/x86_64-4.9/prebuilt/linux-x86_64/include
+#CFLAGS += -I$(NDK_ROOT)/toolchains/x86_64-4.9/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x/include-fixed
+#CFLAGS += -I$(NDK_ROOT)/toolchains/x86_64-4.9/prebuilt/linux-x86_64/lib/gcc/x86_64-linux-android/4.9.x/include
+
+#CPATH = /opt/android-on-linux/android-ndk-r12/toolchains/x86_64-4.9/prebuilt/linux-x86_64/bin/
+
+#CFLAGS += -g -W -Wall -I../.. -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)
+
+#CFLAGS += -Wl,-rpath-link=$(NDK_ROOT)/platforms/android-23/arch-x86_64/usr/lib/
+#CFLAGS += -L$(NDK_ROOT)/platforms/android-23/arch-x86_64/usr/lib/
+
+# refer to http://bodudu.org/2011/04/porting-mongoose-web-server-to-android/
+
+NDK_HOME = /opt/android-on-linux/android-ndk-r12
+TOOLCHAIN_HOME = $(NDK_HOME)/toolchains/x86_64-4.9/prebuilt/linux-x86_64
+CROSS_COMPILE = $(TOOLCHAIN_HOME)/bin/x86_64-linux-android-
+SYSROOT = $(NDK_HOME)/platforms/android-23/arch-x86_64
+CC = $(CROSS_COMPILE)gcc
+NDK_LIB = $(SYSROOT)/usr/lib 
+
+#error: only position independent executables (PIE) are supported. (-fPIE)
+CFLAGS += -g -W -fPIE -Wall -I../.. -Wno-unused-function
+
+#CCFLAGS=-MMD -MP -fpic -ffunction-sections -funwind-tables -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__  -Wno-psabi -march=armv5te -mtune=xscale -msoft-float -mthumb -Os -fomit-frame-pointer -fno-strict-aliasing -finline-limit=64 -DANDROID -Wa,–noexecstack -g
+#CCFLAGS=
+INCDIRS = -I$(SYSROOT)/usr/include
+LDFLAGS = --sysroot=$(SYSROOT) -L$(NDK_LIB)
+#LDFLAGS += -Wl,–gc-sections -Wl,-z,nocopyreloc -Wl,–no-undefined -Wl,-z,noexecstack -Wl,-rpath-link=$(SYSROOT)/usr/lib
+LDFLAGS += -Wl,-rpath-link=$(SYSROOT)/usr/lib
+
+#error: only position independent executables (PIE) are supported. (-pie)
+LDFLAGS += -ldl -fPIE -pie
+
+SOURCES = $(PROG).c ../../mongoose.c
+
+all: $(PROG)
+
+ifeq ($(OS), Windows_NT)
+# TODO(alashkin): enable SSL in Windows
+CFLAGS += -lws2_32
+else
+ifeq ($(SSL_LIB),openssl)
+CFLAGS += -DMG_ENABLE_SSL -lssl -lcrypto
+else ifeq ($(SSL_LIB), krypton)
+CFLAGS += -DMG_ENABLE_SSL -DMG_DISABLE_PFS ../../../krypton/krypton.c
+endif
+# CFLAGS += -lpthread
+CFLAGS += 
+endif
+
+
+ifeq ($(JS), yes)
+	V7_PATH = ../../deps/v7
+	CFLAGS_EXTRA += -DMG_ENABLE_JAVASCRIPT -I $(V7_PATH) $(V7_PATH)/v7.c
+endif
+
+$(PROG): $(SOURCES)
+	$(CC) $(SOURCES) -o $@ $(CFLAGS) $(INCDIRS) $(LDFLAGS)
+
+$(PROG).exe: $(SOURCES)
+	cl $(SOURCES) /I../.. /MD /Fe$@
+
+clean:
+	rm -rf *.gc* *.dSYM *.exe *.obj *.o a.out $(PROG)
+//----------------------------------------------------------
+
+
+
+[root@localhost mongoose-android-x86]# gedit examples/simplest_web_server/simplest_web_server.c
+
+	//static const char *s_http_port = "8000";
+	static const char *s_http_port = "80";
+
+[root@localhost mongoose-android-x86]# gedit examples/websocket_chat/index.html
+
+	//var ws = new WebSocket('ws://' + location.host + '/ws');
+	var ws = new WebSocket('ws://' + location.host + ':8000');
+
+[root@localhost mongoose-android-x86]# cd examples/
+
+[root@localhost examples]# cd websocket_chat
+[root@localhost websocket_chat]# make
+
+[root@localhost websocket_chat]# cd ../simplest_web_server/
+[root@localhost simplest_web_server]# make
+
+[root@localhost examples]# mkdir /opt/share-vm/fedora23server-share/webserver
+[root@localhost examples]# 
+
+cp simplest_web_server/simplest_web_server /opt/share-vm/fedora23server-share/webserver
+cp websocket_chat/websocket_chat /opt/share-vm/fedora23server-share/webserver
+cp websocket_chat/index.html /opt/share-vm/fedora23server-share/webserver
+
+[root@localhost examples]# adb push /opt/share-vm/fedora23server-share/webserver /system/xbin/quagga/
+
+[root@localhost examples]# adb shell
+
+# ./simplest_web_server &
+# ./websocket_chat &
+
+http://localhost
+
+------------------------------------
+All is OK
+------------------------------------
+
+
