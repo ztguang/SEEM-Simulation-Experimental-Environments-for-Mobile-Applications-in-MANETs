@@ -333,10 +333,13 @@ destroy_android(){
 #------------------------------------------------------------------------------------------
 usage(){
 	cat <<-EOU
-    Usage: seem-tools-CLI-semi-auto_4_vbox.sh a b c
+    Usage: seem-tools-CLI-semi-auto_4_vbox.sh a b c d e f
         a, the value is create or destroy
         b, the number of dockers to be created
         c, the number of androids to be created
+        d, docker image, such as, busybox or ubuntu, etc.
+        e, Android image, such as, android-x86_64-6.0-rc1-
+        f, the path of Android image, such as, /opt/virtualbox-os/
 
         Note: b + c <= 254
 
@@ -372,8 +375,8 @@ create_ns3_manet_seem_cc(){
 	rm seem-manet.cc -f &>/dev/null
 	cp seem-manet-template.cc seem-manet.cc
 
-	# after the 302 line of /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/scratch/seem-manet-template.cc
-	str='302a \\n  '
+	# after the 306 line of /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25/scratch/seem-manet-template.cc
+	str='306a \\n  '
 
 	for((id=1; id<=$1; id++))
 	do
@@ -387,9 +390,11 @@ create_ns3_manet_seem_cc(){
 
 	# a: docker_node_num, b:android_node_num
 	#host1=$[$1+1]
-	a=$1
-	b=$2
-	for((id=$[a+1]; id<=$[a+b]; id++))
+	#a=$1
+	#b=$2
+	#for((id=$[a+1]; id<=$[a+b]; id++))
+
+	for((id=1; id<=$2; id++))
 	do
 		tap="tap_a_${id}"
 		ns=$[id-1]
@@ -402,7 +407,7 @@ create_ns3_manet_seem_cc(){
 		#host1=$[host1+1]
 	done
 
-	# sed -i '302a \\n  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_1"));\n  tapBridge.Install (adhocNodes.Get (0), adhocDevices.Get (0));\n  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_2"));\n  tapBridge.Install (adhocNodes.Get (0), adhocDevices.Get (0));' seem-manet.cc
+	# sed -i '306a \\n  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_1"));\n  tapBridge.Install (adhocNodes.Get (0), adhocDevices.Get (0));\n  tapBridge.SetAttribute ("DeviceName", StringValue ("tap_a_2"));\n  tapBridge.Install (adhocNodes.Get (0), adhocDevices.Get (0));' seem-manet.cc
 
 	sed -i "${str}" seem-manet.cc
 
@@ -419,7 +424,7 @@ start_ns3(){
 
 	cd /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
 
-	./waf --run scratch/seem-manet --vis
+	./waf --run scratch/seem-manet --vis &
 
 #	./waf --run scratch/seem-manet-5-android --vis
 
@@ -433,8 +438,8 @@ start_ns3(){
 # para2 ($2), that is, the number of dockers to be created
 # para3 ($3), that is, the number of androids to be created
 # para4 ($4), that is, docker image, such as, busybox or ubuntu, etc.
-# para5 ($5), that is, VM image, such as, android-x86_64-6.0-rc1-
-# para6 ($6), that is, the path of VM image, such as, android-x86_64-6.0-rc1-
+# para5 ($5), that is, Android image, such as, android-x86_64-6.0-rc1-
+# para6 ($6), that is, the path of Android image, such as, /opt/virtualbox-os/
 # [root@localhost virtualbox-os]# pwd
 # /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 # [root@localhost virtualbox-os]# ls
@@ -486,8 +491,6 @@ if [ $# -eq 6 ]; then
 				sleep 60
 
 				start_ns3
-
-				echo $2
 			fi
 		;;
 		destroy)
@@ -500,6 +503,8 @@ if [ $# -eq 6 ]; then
 				destroy_android $3 $5
 				ifconfig vboxnet0 down &>/dev/null
 			fi
+
+			pkill seem-manet
 		;;
 	esac
 else
@@ -519,6 +524,7 @@ fi
 # 25 docker (centos)
 #-----------------------------------------------------------------------------
 # systemctl start docker.service
+# systemctl status docker.service
 
 # [root@localhost fedora23server-share]# pwd
 # /opt/share-vm/fedora23server-share
@@ -538,6 +544,7 @@ fi
 # docker ps -a
 # docker attach docker_1
 # docker stop docker_1
+# docker start docker_1
 # docker rm docker_1
 
 # docker ps
@@ -562,6 +569,20 @@ fi
 # cd /opt/tools/network_simulators/ns3/ns-allinone-3.25/ns-3.25
 # ./waf --run scratch/seem-manet --vis
 # ./waf --run scratch/seem-manet-5-android --vis
+
+#-----------------------------------------------------------------------------
+# 20 docker (centos) and 5 android-x86_64, automatically.
+#-----------------------------------------------------------------------------
+#
+# [root@localhost fedora23server-share]# pwd
+# /opt/share-vm/fedora23server-share
+
+# ./seem-tools-CLI-semi-auto_4_vbox.sh create 20 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+#
+# ./seem-tools-CLI-semi-auto_4_vbox.sh destroy 20 5 centos-manet android-x86_64-6.0-rc1- /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
+
+#-----------------------------------------------------------------------------
+
 #
 # busybox route add -host 112.26.2.1 dev eth0
 # busybox route add -host 112.26.2.1 gw 112.26.2.254
