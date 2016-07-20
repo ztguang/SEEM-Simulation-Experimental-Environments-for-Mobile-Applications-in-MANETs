@@ -1,0 +1,439 @@
+
+[root@localhost ~]# cd /opt/android-x86/android-x86-6.0-rc1/
+[root@localhost android-x86-6.0-rc1]# cat /etc/redhat-release
+Fedora release 24 (Twenty Four)
+
+[root@localhost ~]# uname -a
+Linux localhost.localdomain 4.5.5-300.fc24.x86_64 #1 SMP Thu May 19 13:05:32 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+
+[root@localhost ~]# free -h
+              total        used        free      shared  buff/cache   available
+Mem:            62G        488M        268M        1.8M         62G         61G
+Swap:            9G          4K          9G
+[root@localhost ~]# 
+
+[root@localhost ~]# cat /proc/cpuinfo
+processor	: 31
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 62
+model name	: Intel(R) Xeon(R) CPU E5-2640 v2 @ 2.00GHz
+stepping	: 4
+microcode	: 0x428
+cpu MHz		: 1201.484
+cache size	: 20480 KB
+physical id	: 1
+siblings	: 16
+core id		: 7
+cpu cores	: 8
+apicid		: 47
+initial apicid	: 47
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm epb tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms xsaveopt dtherm ida arat pln pts
+bugs		:
+bogomips	: 4004.93
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+need java-1.7.0-openjdk, not java-1.8.0-openjdk
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+java -version
+
+[root@localhost gem5-stable]# ls /usr/lib/jvm/
+java                                           java-openjdk       jre-1.8.0-openjdk-1.8.0.91-6.b14.fc23.x86_64
+java-1.8.0                                     jre                jre-openjdk
+java-1.8.0-openjdk                             jre-1.8.0
+java-1.8.0-openjdk-1.8.0.91-6.b14.fc23.x86_64  jre-1.8.0-openjdk
+[root@localhost gem5-stable]# 
+
+============================================
+Checking build tools versions...
+************************************************************
+You are attempting to build with the incorrect version
+of java.
+ 
+Your version is: openjdk version "1.8.0_91" OpenJDK Runtime Environment (build 1.8.0_91-b14) OpenJDK 64-Bit Server VM (build 25.91-b14, mixed mode).
+The required version is: "1.7.x"
+ 
+Please follow the machine setup instructions at
+    https://source.android.com/source/initializing.html
+************************************************************
+build/core/main.mk:171: *** stop
+
+#### make failed to build some targets (28 seconds) ####
+
+[root@localhost android-x86-6.0-rc1]# 
+[root@localhost android-x86-6.0-rc1]# export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.75-2.5.4.2.fc20.x86_64
+[root@localhost android-x86-6.0-rc1]# export PATH=$JAVA_HOME/bin:$PATH
+[root@localhost android-x86-6.0-rc1]# java -version
+java version "1.7.0_75"
+OpenJDK Runtime Environment (fedora-2.5.4.2.fc20-x86_64 u75-b13)
+OpenJDK 64-Bit Server VM (build 24.75-b04, mixed mode)
+[root@localhost android-x86-6.0-rc1]# 
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+install java-1.7.0-openjdk
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+http://koji.fedoraproject.org/koji/buildinfo?buildID=605625
+
+download: http://pan.baidu.com/s/1hs0iVuk
+
+dnf search openjdk
+dnf install java-atk-wrapper
+dnf install glibc.i686
+dnf install libncurses.so.5
+
+
+[root@localhost Desktop]# ls java-1.7.0-openjdk-*
+java-1.7.0-openjdk-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-accessibility-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-debuginfo-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-demo-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-devel-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-headless-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+java-1.7.0-openjdk-src-1.7.0.75-2.5.4.2.fc20.x86_64.rpm
+
+[root@localhost Desktop]# rpm -ivh --force --nodeps java-1.7.0-openjdk-*
+[root@localhost Desktop]# java -version
+[root@localhost Desktop]# ls /usr/lib/jvm/
+
+export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.75-2.5.4.2.fc20.x86_64
+export PATH=$JAVA_HOME/bin:$PATH
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Android-x86 —— compile the source code —— VirtualBox
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+http://www.android-x86.org/getsourcecode
+
+[root@localhost android-x86-6.0-rc1]# pwd
+/opt/android-x86/android-x86-6.0-rc1
+
+[root@localhost android-x86-6.0-rc1]# 
+
+export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.75-2.5.4.2.fc20.x86_64
+export PATH=$JAVA_HOME/bin:$PATH
+. build/envsetup.sh
+lunch android_x86_64-userdebug
+m -j32 iso_img
+
+// [root@localhost android-x86-6.0-rc1]# // lunch android_x86-userdebug
+
+
+
+============================================
+PLATFORM_VERSION_CODENAME=REL
+PLATFORM_VERSION=6.0.1
+TARGET_PRODUCT=android_x86_64
+TARGET_BUILD_VARIANT=userdebug
+TARGET_BUILD_TYPE=release
+TARGET_BUILD_APPS=
+TARGET_ARCH=x86_64
+TARGET_ARCH_VARIANT=x86_64
+TARGET_CPU_VARIANT=
+TARGET_2ND_ARCH=x86
+TARGET_2ND_ARCH_VARIANT=x86
+TARGET_2ND_CPU_VARIANT=
+HOST_ARCH=x86_64
+HOST_OS=linux
+HOST_OS_EXTRA=Linux-4.5.5-300.fc24.x86_64-x86_64-with-fedora-24-Twenty_Four
+HOST_BUILD_TYPE=release
+BUILD_ID=MOB30M
+OUT_DIR=out
+============================================
+
+[root@localhost android-x86-6.0-rc1]# m -j32 iso_img
+
+Total translation table size: 6900
+Total rockridge attributes bytes: 3312
+Total directory bytes: 12288
+Path table size(bytes): 88
+Done with: The File(s)                             Block(s)    220194
+Writing:   Ending Padblock                         Start Block 220238
+Done with: Ending Padblock                         Block(s)    150
+Max brk space used 23000
+220388 extents written (430 MB)
+
+
+out/target/product/x86_64/android_x86_64.iso is built successfully.
+
+
+make: Leaving directory '/opt/android-x86/android-x86-6.0-rc1'
+
+#### make completed successfully (01:13:38 (hh:mm:ss)) ####
+
+[root@localhost android-x86-6.0-rc1]# 
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[root@localhost android-x86-6.0-rc1]# ll -h out/target/product/x86_64/android_x86_64.iso
+
+-rw-r--r--. 1 root root 431M 7月  14 22:02 out/target/product/x86_64/android_x86_64.iso
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+So far, all is OK
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+dhcpcd	// comment all dhcpcd    only done in device/generic/common/init.x86.rc (that is, init.android_x86_64.rc)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[root@localhost android-x86-6.0-rc1]# grep dhcpcd -R system/
+
+system/core/libnetutils/dhcp_utils.c:/* Utilities for managing the dhcpcd DHCP client daemon */
+// system/core/libcutils/fs_config.c:  { 00550, AID_DHCP, AID_SHELL, 0, "system/etc/dhcpcd/dhcpcd-run-hooks" },
+
+[root@localhost android-x86-6.0-rc1]# grep dhcpcd -R device/
+
+device/generic/common/init.x86.rc:service dhcpcd_wlan0 /system/bin/dhcpcd -aABDKL
+
+
+
+
+--------------------------------------------------
+vi system/core/rootdir/init.rc
+--------------------------------------------------
+
+    # reflect fwmark from incoming packets onto generated replies
+    write /proc/sys/net/ipv4/fwmark_reflect 1
+    write /proc/sys/net/ipv6/fwmark_reflect 1
+
+    # set fwmark on accepted sockets
+    write /proc/sys/net/ipv4/tcp_fwmark_accept 1
+
+service netd /system/bin/netd
+    class main
+    socket netd stream 0660 root system
+    socket dnsproxyd stream 0660 root inet
+    socket mdns stream 0660 root system
+    socket fwmarkd stream 0660 root inet
+
+service mdnsd /system/bin/mdnsd
+    class main
+    user mdnsr
+    group inet net_raw
+    socket mdnsd stream 0660 mdnsr inet
+    disabled
+    oneshot
+
+--------------------------------------------------
+
+
+--------------------------------------------------
+vi device/generic/common/init.x86.rc
+--------------------------------------------------
+#import /init.bluetooth.rc
+
+#service btattach /system/bin/btattach -Pbcm
+#    class main
+#    disabled
+#    oneshot
+
+#on property:init.svc.bluetoothd=running
+#    exec -- /system/bin/logwrapper /system/bin/sh /system/etc/init.sh hci
+
+#on property:init.svc.bluetoothd=stopped
+#    exec -- /system/bin/logwrapper /system/bin/sh /system/etc/init.sh hci
+
+#service wpa_supplicant /system/bin/wpa_supplicant -c/data/misc/wifi/wpa_supplicant.conf \
+#    -iwlan0 -Dnl80211 \
+#    -O/data/misc/wifi/sockets \
+#    -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
+    #   we will start as root and wpa_supplicant will switch to user wifi
+    #   after setting up the capabilities required for WEXT
+    #   user wifi
+    #   group wifi inet keystore
+#    class main
+#    socket wpa_wlan0 dgram 660 wifi wifi
+#    disabled
+
+#service dhcpcd_wlan0 /system/bin/dhcpcd -aABDKL
+#    class main
+#    disabled
+#    oneshot
+
+#service iprenew_wlan0 /system/bin/dhcpcd -n
+#    class main
+#    disabled
+#    oneshot
+
+service dhcpcd_eth0 /system/bin/dhcpcd -ABDKL
+    class main
+    disabled
+    oneshot
+
+service iprenew_eth0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+#on property:init.svc.wpa_supplicant=stopped
+#    stop dhcpcd
+--------------------------------------------------
+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+grub - set timeout=1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[root@localhost android-x86-6.0-rc1]# vi bootable/newinstaller/install/scripts/1-install 
+
+	echo -e "${GRUB_OPTIONS:-default=0\ntimeout=6\nsplashimage=/grub/android-x86.xpm.gz\n}root (hd0,$1)\n" > $menulst
+
+--------------------------------------------------
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+recompile modified Android
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+[root@localhost android-x86-6.0-rc1]# pwd
+/run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/android-x86/android-x86-6.0-rc1
+[root@localhost android-x86-6.0-rc1]# 
+
+cp frameworks/base/services/java/com/android/server/SystemServer.java .
+gedit SystemServer.java
+#--------------------------------------------------------------------
+
+// recompiled android-x86-6.0-rc1
+
+// otherwise, can't forward packages
+#--------------------------------------------------------------------
+
+scp SystemServer.java 10.109.253.80:/opt/android-x86/android-x86-6.0-rc1/frameworks/base/services/java/com/android/server/SystemServer.java
+
+
+/*
+ * return to IBM-X3650-M4
+ */
+
+[root@localhost android-x86-6.0-rc1]# pwd
+
+/opt/android-x86/android-x86-6.0-rc1
+
+[root@localhost android-x86-6.0-rc1]# 
+
+export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.75-2.5.4.2.fc20.x86_64
+export PATH=$JAVA_HOME/bin:$PATH
+. build/envsetup.sh
+lunch android_x86_64-userdebug
+m -j32 iso_img
+
+[root@localhost android-x86-6.0-rc1]# ll -h /opt/android-x86/android-x86-6.0-rc1/out/target/product/x86_64/android_x86_64.iso
+
+-rw-r--r--. 1 root root 431M 7月  14 22:21 /opt/android-x86/android-x86-6.0-rc1/out/target/product/x86_64/android_x86_64.iso
+
+
+
+/*
+ * return to PC
+ */
+
+[root@localhost 158a840e-63fa-4544-b0b8-dc0d40c79241]# pwd
+/run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241
+[root@localhost 158a840e-63fa-4544-b0b8-dc0d40c79241]# 
+
+scp 10.109.253.80:/opt/android-x86/android-x86-6.0-rc1/out/target/product/x86_64/android_x86_64.iso .
+
+mv android_x86_64.iso android-x86_64-6.0-rc1.iso
+
+/*
+ * then to install android_x86_64.iso in VirtualBox
+ */
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+So far, all is OK OK
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+modify some files - http://blog.csdn.net/ztguang/article/details/51921491  (NO USE) (NO USE) (NO USE)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// vi system/core/rootdir/init.rc  // sh /system/xbin/quagga/sbin/init_in_android-x86_64.sh
+
+scp /opt/share-vm/fedora23server-share/seem_init.sh 10.109.253.80:/opt/android-x86/android-x86-6.0-rc1/device/generic/common/
+
+
+vi device/generic/common/device.mk
+    // after 31 line, add:
+    $(if $(wildcard $(PRODUCT_DIR)seem_init.sh),$(PRODUCT_DIR),$(LOCAL_PATH)/)seem_init.sh:system/etc/seem_init.sh \
+
+vi system/core/rootdir/init.rc
+    // at the end of the file, add:
+    service seem_init /system/etc/seem_init.sh
+        class main
+        user root
+        group root
+        oneshot
+
+vi system/core/rootdir/init.rc
+    // at 500 line, in section "on boot", add two lines:
+    setprop net.tcp.default_init_rwnd 60	(already exist)
+    chown root shell /system/etc/seem_init.sh
+    chmod 0550 /system/etc/seem_init.sh
+
+vi system/core/libcutils/fs_config.c
+    // at 112 line, in section "on boot", add one line:
+    { 00550, AID_ROOT,      AID_SHELL,     0, "system/etc/init.goldfish.sh" },	(already exist)
+    { 00550, AID_ROOT,      AID_SHELL,     0, "system/etc/seem_init.sh" },
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+^^^^^^^^^^^^^^^^^^^^^^
+[root@localhost android-x86-6.0-rc1]# grep enableForwarding -R system/
+
+system/netd/server/TetherController.cpp:bool TetherController::enableForwarding(const char* requester) {
+system/netd/server/CommandListener.cpp:            success = sTetherCtrl->enableForwarding(argv[2]);
+
+^^^^^^^^^^^^^^^^^^^^^^
+[root@localhost android-x86-6.0-rc1]# grep ipfwd -R frameworks/ |grep enable
+
+frameworks/base/services/core/java/com/android/server/NetworkManagementService.java:            mConnector.execute("ipfwd", enable ? "enable" : "disable", "tethering");
+
+^^^^^^^^^^^^^^^^^^^^^^
+[root@localhost android-x86-6.0-rc1]# grep setIpForwardingEnabled -R frameworks/
+
+frameworks/base/services/core/java/com/android/server/connectivity/Tethering.java:                    mNMService.setIpForwardingEnabled(true);
+
+
+
+
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+./kernel/kernel/sysctl_binary.c:	{CTL_INT,	NET_IPV4_FORWARD,			"ip_forward" },
+
+
+
