@@ -394,10 +394,10 @@ create_ns3_manet_seem_cc(){
 	#b=$2
 	#for((id=$[a+1]; id<=$[a+b]; id++))
 
-	for((id=1; id<=$2; id++))
+	for((ns=$1, id=1; id<=$2; id++, ns++))
 	do
 		tap="tap_a_${id}"
-		ns=$[id-1]
+		#ns=$[n-1]
 		#inter="tapBridge.SetAttribute (\"Gateway\", Ipv4AddressValue (\"192.168.26.${host1}\")); tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  tapBridge.Install (adhocNodes.Get (${id}), adhocDevices.Get (${id}));\n  "
 		inter="tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  tapBridge.Install (adhocNodes.Get (${ns}), adhocDevices.Get (${ns}));\n  "
 		#inter="tapBridge.SetAttribute (\"DeviceName\", StringValue (\"${tap}\"));\n  "
