@@ -631,7 +631,7 @@ fi
 # setprop service.adb.tcp.port 5555
 # stop adbd
 # start adbd
-
+ 
 # cd /run/media/root/158a840e-63fa-4544-b0b8-dc0d40c79241/virtualbox-os
 
 # VBoxManage createvm --name android-x86_64-6.0-rc1-0 --ostype Linux_64 --register
