@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
- 
+
 //
 // This program configures a grid (default 5x5) of nodes on an 
 // 802.11b physical layer, with
